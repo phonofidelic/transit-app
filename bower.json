@@ -1,0 +1,31 @@
+{
+  "name": "event-planner",
+  "description": "Project 1 for Udacity's Sr Front End course",
+  "main": "index.js",
+  "authors": [
+    "phonofidelic <chris_clemons85@hotmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.7",
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2.4",
+    "angular-route": "^1.5.7"
+  },
+  "resolutions": {
+    "angular": "^1.5.7"
+  },
+  "devDependencies": {
+    "jasmine-core": "jasmine#^2.4.1",
+    "angular-mocks": "^1.5.7"
+  }
+}
