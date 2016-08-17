@@ -45,8 +45,8 @@ gulp.task('styles', function() {
 	// TODO: switch to dist directory on build
 	// .pipe(gulp.multiDest(['./src/css', './dist/css']));
 	.pipe(gulp.dest('src/css'))
-	.pipe(minCss())
-	.pipe(gulp.dest('dist/css'))
+	// .pipe(minCss())
+	// .pipe(gulp.dest('dist/css'))
 	.pipe(browserSync.stream());
 });
 gulp.task('watch-css', function() {

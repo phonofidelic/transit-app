@@ -19,7 +19,9 @@
     "angular": "^1.5.7",
     "bootstrap": "^3.3.6",
     "jquery": "^2.2.4",
-    "angular-route": "^1.5.7"
+    "angular-route": "^1.5.7",
+    "leaflet": "^0.7.7",
+    "leaflet-geocoder-mapzen": "^1.7.0"
   },
   "resolutions": {
     "angular": "^1.5.7"
