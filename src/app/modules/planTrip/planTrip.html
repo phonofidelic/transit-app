@@ -1,1 +1,23 @@
-<div>hello world</div>
+<div class="container">
+	<form action="" role="form">
+		<legend>Form title</legend>
+	
+		<div class="form-group">
+			<label for="">label</label>
+			<input type="text" 
+				   class="form-control" 
+				   id="" 
+				   placeholder="Input field"
+				   ng-model="vm.input">
+		</div>
+	
+		
+	
+		<button class="btn btn-primary" ng-click="vm.sendRequest(vm.input)">Submit</button>
+	</form>
+	<div class="row">
+		<div class="col-sm-12">
+			<map-directive></map-directive>
+		</div>
+	</div>
+</div>
