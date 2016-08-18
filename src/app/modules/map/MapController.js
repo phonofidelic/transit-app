@@ -1,6 +1,6 @@
 angular.module('transitApp').controller('MapController', ['$scope', '$log','LocationService', function($scope, $log, LocationService) {
 	var vmMap = this;
-	var map = L.map('map').setView([37.804146, -122.275045], 16);
+	var map = L.map('map');
 	var locationService = new LocationService();
 
 
@@ -21,16 +21,22 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
-			console.log('getPosition result: ', position);
 			map.setView([position.coords.latitude, position.coords.longitude], 16);
-			// return position.coords;
 		}).catch(function(e) {
 			console.log('getPosition error: ', e);
 		});	
 
-
-
 		var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
+
+		var lc = L.control.locate({
+			position: 'topleft',
+		}).addTo(map);
+
+		lc.start();
+
+		// var locator = L.Mapzen.locator();
+		// locator.setPosition('bottomright');
+		// locator.addTo(map);
 
 		$log.log('init map');
 		return map;

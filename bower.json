@@ -24,7 +24,8 @@
     "leaflet-geocoder-mapzen": "^1.7.0",
     "tangram": "^0.9.0",
     "leaflet-routing-machine": "^3.1.0",
-    "typeahead.js": "^0.11.1"
+    "typeahead.js": "^0.11.1",
+    "leaflet.locatecontrol": "https://github.com/domoritz/leaflet-locatecontrol.git#^0.52.0"
   },
   "resolutions": {
     "angular": "^1.5.7"

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-init="vm.getCurrentPosition()">
 	<form action="" role="form">
 		<legend>Form title</legend>
 	
@@ -6,29 +6,48 @@
 			<label for="">departure</label>
 			<input type="text" 
 				   list="departure-suggestions"
-				   class="form-control" 
+				   class="form-control typeahead" 
 				   id="departure-inp" 
 				   placeholder="Input field"
-				   ng-model="vm.inputData.label"
-				   ng-change="vm.autoAddress(vm.inputData.label)"
+				   ng-model="vm.inputData.departure.name"
+				   ng-init="vm.autoAddress('departure-inp')"
+				   ng-blur="vm.getAddress('departure-inp'); departureFocused = false;"
 				   ng-focus="departureFocused = true"
-				   ng-blur="departureFocused = false">
+				   onClick="document.getElementById('departure-inp').select()">
+
 	<!-- 		<datalist id="departure-suggestions">
-				<option ng-repeat="suggestion in vm.suggestions"><span ng-click="vm.inputData = suggestion">{{suggestion.label}}</span></option>
+				<option ng-repeat="suggestion in vm.suggestions"><span ng-click="vm.inputData.departure = suggestion">{{suggestion.label}}</span></option>
 			</datalist> -->
 		</div>
-	
+
+		<div class="form-group">
+			<label for="">arrival</label>
+			<input type="text" 
+				   list="arrival-suggestions"
+				   class="form-control typeahead" 
+				   id="arrival-inp" 
+				   placeholder="Input field"
+				   ng-model="vm.inputData.arrival.name"
+				   ng-init="vm.autoAddress('arrival-inp')"
+				   ng-blur="vm.getAddress('arrival-inp'); arrivalFocused = false;"
+				   ng-focus="departureFocused = true"
+				   onClick="document.getElementById('arrival-inp').select()">
+
+	<!-- 		<datalist id="arrival-suggestions">
+				<option ng-repeat="suggestion in vm.suggestions"><span ng-click="vm.inputData.departure = suggestion">{{suggestion.label}}</span></option>
+			</datalist> -->
+		</div>
 		
 	
 		
 	</form>
-	<div ng-hide="click">
+<!-- 	<div ng-show="departureFocused">
 		<ul ng-repeat="suggestion in vm.suggestions">
-			<li ng-click="vm.inputData = suggestion"
+			<li ng-click="vm.inputData.departure = suggestion"
 				class="location-suggestion">{{suggestion.label}}</li>
 		</ul>
-	</div>
-	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.input)">Submit (vm.sendRequest())</button>
+	</div> -->
+	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
 	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
 	<div class="row">
 		<div class="col-sm-12">
