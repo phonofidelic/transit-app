@@ -57,40 +57,33 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 
 
 	vm.sendRequest = function(input) {
-		locationService.getCurrentPosition().then(function(position) {
-			console.log('getPosition result: ', position);
-			return position.coords;
-		}).then(function(coords) {
-			var requestParams = {
-				"locations": [
-					{
-						"lat": coords.latitude,
-						"lon": coords.longitude
-						// "type": "break"
-					},
-					{
-						"lat": 33.8128,
-						"lon": -117.9259
-						// "type": "break"
-					}	
-				],
-				"costing": "auto",
-				"directions_options": { "units":"miles" }
-			}
-			var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
+		var requestParams = {
+			"locations": [
+				{
+					"lat": vm.inputData.departure.coords.lat || vm.currentPosition.lat,
+					"lon": vm.inputData.departure.coords.lon || vm.currentPosition.lon
+					// "type": "break"
+				},
+				{
+					"lat": vm.inputData.arrival.coords.lat,
+					"lon": vm.inputData.arrival.coords.lon
+					// "type": "break"
+				}	
+			],
+			"costing": "multimodal",
+			"directions_options": { "units":"miles" }
+		}
+		var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
 
-			$http({
-				method: 'GET',
-				url: url,
-			}).then(function(response) {
-				console.log('sendRequest response: ', response);
-				vm.tripData = response.data.trip;
-			}).catch(function(e) {
-				console.log('RequestService.send error: ', e);
-			});
+		$http({
+			method: 'GET',
+			url: url,
+		}).then(function(response) {
+			console.log('sendRequest response: ', response);
+			vm.tripData = response.data.trip;
 		}).catch(function(e) {
-			console.log('sendRequest error: ', e);
-		});	
+			console.log('RequestService.send error: ', e);
+		});
 	};
 
 	// vm.autoAddress = function(input) {
