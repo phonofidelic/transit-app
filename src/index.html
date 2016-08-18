@@ -4,12 +4,14 @@
 <head>
 	<base href="/">
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title>transit app</title>
 	<!-- bootstrap css -->
 	<link rel="stylesheet" type="text/css" href="lib/bootstrap/dist/css/bootstrap.min.css">
 	<!-- leaflet css -->
 	<link rel="stylesheet" type="text/css" href="lib/leaflet/dist/leaflet.css">
 	<link rel="stylesheet" type="text/css" href="lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.css">
+	<link rel="stylesheet" href="https://npmcdn.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css">
 
 	<!-- main css -->
 	<link rel="stylesheet" type="text/css" href="css/main.css">
@@ -21,10 +23,16 @@
 	<script type="text/javascript" src="lib/angular-route/angular-route.js"></script>
 	<!-- bootstrap -->
 	<script type="text/javascript" src="lib/bootstrap/dist/js/bootstrap.js"></script>
+	<!-- tangram -->
 	<!-- leaflet -->
 	<script type="text/javascript" src="lib/leaflet/dist/leaflet.js"></script>
+	<script type="text/javascript" src="lib/tangram/dist/tangram.debug.js"></script>
+	<script type="text/javascript" src="lib/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 	<script type="text/javascript" src="lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.js"></script>
+	<script src="https://npmcdn.com/lrm-mapzen/dist/lrm-mapzen.js"></script>
 
+	<!-- google scripts -->
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXcFHRjLncSzc1UBklhRueyStZdZHaELA&libraries=places"></script>
 </head>
 <body>
 	<div class="container">
@@ -41,6 +49,8 @@
 
 	<script type="text/javascript" src="app/app.module.js"></script>
 	<script type="text/javascript" src="app/app.config.js"></script>
+	<!-- common -->
+	<script type="text/javascript" src="app/common/services/LocationService.js"></script>
 	<!-- planTrip -->
 	<script type="text/javascript" src="app/modules/planTrip/PlanTripController.js"></script>
 	<script type="text/javascript" src="app/modules/planTrip/services/RequestService.js"></script>

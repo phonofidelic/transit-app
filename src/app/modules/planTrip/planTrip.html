@@ -3,18 +3,33 @@
 		<legend>Form title</legend>
 	
 		<div class="form-group">
-			<label for="">label</label>
+			<label for="">departure</label>
 			<input type="text" 
+				   list="departure-suggestions"
 				   class="form-control" 
-				   id="" 
+				   id="departure-inp" 
 				   placeholder="Input field"
-				   ng-model="vm.input">
+				   ng-model="vm.inputData.label"
+				   ng-change="vm.autoAddress(vm.inputData.label)"
+				   ng-focus="departureFocused = true"
+				   ng-blur="departureFocused = false">
+	<!-- 		<datalist id="departure-suggestions">
+				<option ng-repeat="suggestion in vm.suggestions"><span ng-click="vm.inputData = suggestion">{{suggestion.label}}</span></option>
+			</datalist> -->
 		</div>
 	
 		
 	
-		<button class="btn btn-primary" ng-click="vm.sendRequest(vm.input)">Submit</button>
+		
 	</form>
+	<div ng-hide="click">
+		<ul ng-repeat="suggestion in vm.suggestions">
+			<li ng-click="vm.inputData = suggestion"
+				class="location-suggestion">{{suggestion.label}}</li>
+		</ul>
+	</div>
+	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.input)">Submit (vm.sendRequest())</button>
+	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
 	<div class="row">
 		<div class="col-sm-12">
 			<map-directive></map-directive>
