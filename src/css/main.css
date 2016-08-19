@@ -8,3 +8,6 @@ li.location-suggestion {
 
 .location-suggestion:hover {
   background: #B2EBF2; }
+
+.location-transit {
+  background: #FF5722; }

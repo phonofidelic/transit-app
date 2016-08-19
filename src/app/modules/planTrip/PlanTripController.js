@@ -14,16 +14,23 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 	// vm.tripData = {};
 
 	vm.getCurrentPosition = function() {
-		locationService.getCurrentPosition().then(function(position) {
+		var position = locationService.getCurrentPosition().then(function(position) {
 			console.log('getPosition result: ', position.coords);
 			vm.currentPosition.lat = position.coords.latitude;
 			vm.currentPosition.lon = position.coords.longitude;
+			return position.coords;
+		}).then(function(position) {
+			locationService.revGeocode(position).then(function(result) {
+				console.log('addressString: ', result);
+				vm.currentPosition.addressString = result;			
+			});
 		});
+
+		
 	};
 
 	vm.autoAddress = function(id) {
 		var input = document.getElementById(id);
-		console.log('input: ', input.id);
 		var options = {
 			types: ['address']
 		};
@@ -38,7 +45,7 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 		if (id === 'departure-inp') {
 			$timeout(function() {
 				console.log('*** getAddress ***');
-				console.log('locationData: ', $scope.departureAutocomplete.getPlace().geometry.location);
+				console.log('locationData: ', $scope.departureAutocomplete.getPlace());
 				vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().name;
 				vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
 				vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
@@ -46,7 +53,7 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 		} else {
 			$timeout(function() {
 				console.log('*** getAddress ***');
-				console.log('locationData: ', $scope.arrivalAutocomplete.getPlace().geometry.location.lat());
+				console.log('locationData: ', $scope.arrivalAutocomplete.getPlace());
 				vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().name;
 				vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
 				vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
@@ -71,6 +78,12 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 				}	
 			],
 			"costing": "multimodal",
+			"costing_options": {
+				"transit": {
+					"use_bus": 0.1,
+					"use_rail": 1.0
+				}
+			},
 			"directions_options": { "units":"miles" }
 		}
 		var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
@@ -86,37 +99,17 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 		});
 	};
 
-	// vm.autoAddress = function(input) {
-	// 	// get users current location 
+	vm.transitLandRequest = function() {
+		var requestParams = {};
+		var url = 'http://transit.land/api/v1/operators?state=Florida&metro=Fort%20Lauderdale';
 
-	// 	console.log('autoAddress: ', input);
-
-	// 	var autoBaseUrl = 'https://search.mapzen.com/v1/autocomplete';
-	// 	var mapzenSearchKey = 'search-3LVgAzp';
-	// 	var url = autoBaseUrl+
-	// 			  '?api_key='+mapzenSearchKey+
-	// 			  '&focus.point.lat='+vm.currentPosition.lat+
-	// 			  '&focus.point.lon='+vm.currentPosition.lon+
-	// 			  '&text='+input;
-
-	// 	$http({
-	// 		method: 'GET',
-	// 		url: url
-	// 	}).then(function(response) {
-	// 		console.log('autoAddress response: ', response);
-	// 		var suggestions = [];
-	// 		response.data.features.forEach(function(item) {
-	// 			suggestions.push({
-	// 				label: item.properties.label,
-	// 				value: item.properties
-	// 			});
-	// 		});
-	// 		console.log('suggestions: ', suggestions);
-	// 		vm.suggestions = suggestions;
-	// 	})
-	// 	.catch(function(e) {
-	// 		console.log('autoAddress error: ', e);
-	// 	});
-
-	// };
+		$http({
+			method: 'GET',
+			url: url
+		}).then(function(response) {
+			console.log('transitland response: ', response);
+		}).catch(function(e) {
+			console.log('transitland error: ', e);
+		});
+	};
 }]);

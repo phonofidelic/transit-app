@@ -36,11 +36,13 @@
 	<div ng-show="vm.tripData">
 		<div ng-repeat="move in vm.tripData.legs[0].maneuvers" class="location-suggestion">
 			<h4 class="strong">{{move.street_names[0]}}</h4>
+			<div class="location-transit" ng-show="move.transit_info"><i class="fa fa-bus" aria-hidden="true"></i> onestop_id: {{move.transit_info.onestop_id}}</div>
 			<div class="trip-instruction">{{move.instruction}}</div>
 		</div>
 	</div>
 	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
 	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
+	<button type="button" class="btn btn-default" ng-click="vm.transitLandRequest()">transitland request</button>
 	<div class="row">
 		<div class="col-sm-12">
 			<map-directive></map-directive>

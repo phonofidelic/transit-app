@@ -42,6 +42,7 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 		return map;
 	}
 
+	// TODO: move into service? ***********************************
 	vmMap.setRoute = function(destination) {
 		// initializes a route from current position to supplied destination parameter
 		locationService.getCurrentPosition().then(function(position) {
