@@ -14,7 +14,7 @@ angular.module('transitApp').factory('LocationService', ['$http', function($http
 		return new Promise(function(resolve, reject) {
 			geocoder.geocode({'location': latlng}, function(results, status) {
 				if (status === 'OK') {
-					resolve(results[0].formatted_address);
+					resolve(results[0]);
 				} else {
 					reject(console.log('geocoding error: ', status))
 				}

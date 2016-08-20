@@ -1,8 +1,9 @@
 'use-strict';
-angular.module('transitApp').controller('PlanTripController', ['$scope', '$http', 'RequestService', 'LocationService', '$timeout', function($scope, $http, RequestService, LocationService, $timeout){
+angular.module('transitApp').controller('PlanTripController', ['$scope', '$http', '$timeout', 'RequestService', 'LocationService', 'TransitLandRequestService', function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService){
 	var vm = this;
 	var requestService = new RequestService();
 	var locationService = new LocationService();
+	var transitService = new TransitLandRequestService();
 
 	vm.inputData = {};
 	vm.inputData.departure = {};
@@ -13,6 +14,13 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 
 	// vm.tripData = {};
 
+	vm.transitRequest = function(region) {
+		transitService.sendRequest(region).then(function(response) {
+			vm.routeData = response.data.routes;
+			console.log('transitRequest response: ', response);
+		});
+	};
+
 	vm.getCurrentPosition = function() {
 		var position = locationService.getCurrentPosition().then(function(position) {
 			console.log('getPosition result: ', position.coords);
@@ -20,9 +28,11 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 			vm.currentPosition.lon = position.coords.longitude;
 			return position.coords;
 		}).then(function(position) {
-			locationService.revGeocode(position).then(function(result) {
-				console.log('addressString: ', result);
-				vm.currentPosition.addressString = result;			
+			locationService.revGeocode(position).then(function(results) {
+				console.log('region: ', results.address_components[3].short_name);
+				vm.currentPosition.addressString = results.formatted_address;
+				// vm.currentPosition.countyString = results.address_components[3].short_name;
+				vm.currentPosition.countyString = 'o-dhw-browardcountytransit';
 			});
 		});
 
@@ -46,17 +56,21 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 			$timeout(function() {
 				console.log('*** getAddress ***');
 				console.log('locationData: ', $scope.departureAutocomplete.getPlace());
-				vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().name;
-				vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
-				vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
+				if ($scope.departureAutocomplete.getPlace()) {
+					vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().formatted_address;
+					vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
+					vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
+				}
 			}, 500);
 		} else {
 			$timeout(function() {
 				console.log('*** getAddress ***');
 				console.log('locationData: ', $scope.arrivalAutocomplete.getPlace());
-				vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().name;
-				vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
-				vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
+				if ($scope.arrivalAutocomplete.getPlace()) {
+					vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().formatted_address;
+					vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
+					vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
+				}
 			}, 500);
 		}
 	};

@@ -1,22 +1,29 @@
 angular.module('transitApp').factory('TransitLandRequestService', ['$http', function($http) {
 	function TransitLandRequestService() {};
 
-	TransitLandRequestService.prototype.http = function(state, metro) {
+	TransitLandRequestService.prototype.sendRequest = function(region) {
 		var requestParams = {
-			state: state,
-			metro: metro
-		};
-		var baseUrl = 'http://transit.land/api/v1/?operators?'+
-					   requestParams.state+;
+			region: region,
 
-		http({
+		};
+		var url = 'https://transit.land/api/v1/routes?operated_by='+
+					   requestParams.region;
+
+		var route = $http({
 			method: 'GET',
-			url: url
+			url: url,
+			eventHandlers: {
+				progress: function(e) {
+					console.log('progress: ', e);
+				}
+			}
 		}).then(function(response) {
-			console.log('transitland response: ', response);
+			// console.log('transitland response: ', response);
+			return response;
 		}).catch(function(e) {
 			console.log('transitland error: ', e);
 		});
+		return route;
 	}	
 	return TransitLandRequestService;
 }]);
