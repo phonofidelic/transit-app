@@ -1,6 +1,8 @@
 angular.module('transitApp').controller('MapController', ['$scope', '$log','LocationService', function($scope, $log, LocationService) {
 	var vmMap = this;
-	var map = L.map('map');
+	var map = L.map('map', {
+		scrollWheelZoom: false
+	});
 	var locationService = new LocationService();
 
 
@@ -41,6 +43,11 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 		$log.log('init map');
 		return map;
 	}
+
+	// Add stop markers
+	vmMap.setStopMArkers = function() {
+
+	};
 
 	// TODO: move into service? ***********************************
 	vmMap.setRoute = function(destination) {

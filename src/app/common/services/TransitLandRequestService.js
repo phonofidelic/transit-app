@@ -1,7 +1,9 @@
 angular.module('transitApp').factory('TransitLandRequestService', ['$http', function($http) {
-	function TransitLandRequestService() {};
+	function TransitLandRequestService() {
+		var self = this;
+	};
 
-	TransitLandRequestService.prototype.sendRequest = function(region) {
+	TransitLandRequestService.prototype.routesByOperator = function(region) {
 		var requestParams = {
 			region: region,
 
@@ -9,7 +11,7 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 		var url = 'https://transit.land/api/v1/routes?operated_by='+
 					   requestParams.region;
 
-		var route = $http({
+		return $http({
 			method: 'GET',
 			url: url,
 			eventHandlers: {
@@ -23,7 +25,133 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 		}).catch(function(e) {
 			console.log('transitland error: ', e);
 		});
-		return route;
-	}	
+	};
+
+	TransitLandRequestService.prototype.routeByOnestopId = function(onestop_id) {
+		var url = 'https://transit.land/api/v1/routes?onestop_id='+onestop_id;
+
+		return $http({
+			method: 'GET',
+			url: url,
+			eventHandlers: {
+				progress: function(e) {
+					console.log('progress: ', e);
+				}
+			}
+		}).then(function(response) {
+			// console.log('transitland response: ', response);
+			return response;
+		}).catch(function(e) {
+			console.log('transitland error: ', e);
+		});
+	};
+
+	TransitLandRequestService.prototype.getStopInfo = function(onestop_id) {
+		var url = 'http://transit.land/api/v1/stops?onestop_id='+onestop_id;
+
+		return $http({
+			method: 'GET',
+			url: url,
+		}).then(function(response) {
+			console.log('getStopInfo response: ', response);
+			return response;
+		}).catch(function(e) {
+			console.log('getStopInfo error: ', e);
+		});
+	};
+
+	TransitLandRequestService.prototype.routeBetween = function(dep_onestop_id, arr_onestop_id) {
+		// convert onestop_id to coords
+
+		return $http({
+			method: 'GET',
+			url: 'http://transit.land/api/v1/stops?onestop_id='+dep_onestop_id
+		}).then(function(response) {
+			var endpoints = {origin: response.data.stops[0]};
+			return endpoints;
+		}).then(function(endpoints) {
+			$http({
+				method: 'GET',
+				url: 'http://transit.land/api/v1/stops?onestop_id='+arr_onestop_id
+			}).then(function(response) {
+				endpoints.destination = response.data.stops[0];
+				return endpoints;
+			}).then(function(endpoints) {
+				console.log('endpoints: ', endpoints);
+				console.log('endpoints.origin: ', endpoints.origin);
+				console.log('endpoints.destination: ', endpoints.destination);
+				var requestParams = {
+					"locations": [
+						{
+							"lat": endpoints.origin.geometry.coordinates[0],
+							"lon": endpoints.origin.geometry.coordinates[1]
+							// "type": 'break'
+						},
+						{
+							"lat": endpoints.destination.geometry.coordinates[0],
+							"lon": endpoints.destination.geometry.coordinates[1]
+							// "type": 'break'
+						}
+					],
+					"costing": "multimodal",
+					"costing_options": {
+						"transit": {
+							"use_bus": 1.0,
+							"use_rail": 1.0
+						}
+					}
+				};
+
+				var formatedParams = JSON.stringify(requestParams);
+
+				var mapzenUrl = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
+
+				$http({
+					method: 'GET',
+					url: mapzenUrl,
+				}).then(function(response) {
+					console.log('routeBetween response: ', response);
+					return response;
+				}).catch(function(e) {
+					console.log('routeBetween error: ', e);
+				});
+			});
+			console.log('endpoints.destination: ', endpoints.destination);
+			return endpoints;
+		})
+
+		// .then(function(endpoints) {
+		// 	console.log('endpoints: ', endpoints);
+		// 	console.log('endpoints.origin: ', endpoints.origin);
+		// 	// console.log('endpoints.destination: ', endpoints.destination);
+		// 	var requestParams = {
+		// 		"locations": [
+		// 			{
+		// 				"lat": endpoints.origin.geometry.coordinates[0],
+		// 				"lon": endpoints.origin.geometry.coordinates[1]
+		// 			},
+		// 			{
+		// 				"lat": endpoints.destination.geometry.coordinates[0],
+		// 				"lon": endpoints.destination.geometry.coordinates[1]
+		// 			}
+		// 		],
+		// 		"costing": "multimodal"
+		// 	};
+
+		// 	var mapzenUrl = 'valhalla.mapzen.com/route?json='+requestParams+'&api_key=valhalla-m9bds2x';
+
+		// 	$http({
+		// 		method: 'GET',
+		// 		url: mapzenUrl,
+		// 	}).then(function(response) {
+		// 		console.log('routeBetween response: ', response);
+		// 		return response;
+		// 	}).catch(function(e) {
+		// 		console.log('routeBetween error: ', e);
+		// 	});
+		// })
+
+	};
 	return TransitLandRequestService;
 }]);
+

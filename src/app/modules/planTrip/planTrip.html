@@ -37,7 +37,12 @@
 	<div ng-show="vm.tripData">
 		<div ng-repeat="move in vm.tripData.legs[0].maneuvers" class="location-suggestion">
 			<h4 class="strong">{{move.street_names[0]}}</h4>
-			<div class="location-transit" ng-show="move.transit_info"><i class="fa fa-bus" aria-hidden="true"></i> onestop_id: {{move.transit_info.onestop_id}}</div>
+			<div class="location-transit" ng-show="move.transit_info">
+				<div><i class="fa fa-bus" aria-hidden="true"></i> onestop_id: {{move.transit_info.onestop_id}}</div>
+				<ul ng-repeat="stop in move.transit_info.transit_stops">
+					<li>{{stop.name}} {{stop.onestop_id}}</li>
+				</ul>
+			</div>
 			<div class="trip-instruction">{{move.instruction}}</div>
 		</div>
 	</div>
@@ -45,13 +50,36 @@
 	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
 	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
 	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">transitland request</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">route request</button>
 
-	<div class="row" ng-show="transit">
-		<label>routes</label>
-		<input list="routes-inp" name="">
-		<datalist id="routes-inp">
-			<option ng-repeat="route in vm.routeData" value="{{route.name}}"></option>
-		</datalist>
+	<div class="row" ng-show="route">
+		<div class="col-md-6">
+			<label>route departure</label>
+			<input list="routes-inp" name="" ng-model="vm.inputData.departure.onestop_id">
+			<datalist id="routes-inp">
+				<option ng-repeat="route in vm.routeData[0].stops_served_by_route" 
+						value="{{route.stop_onestop_id}}" 
+				</option>
+			</datalist>
+		</div>
+		<div class="col-md-6">
+			<label>route arrival</label>
+			<input list="routes-inp" name="" ng-model="vm.inputData.arrival.onestop_id">
+			<datalist id="routes-inp">
+				<option ng-repeat="route in vm.routeData[0].stops_served_by_route" 
+						value="{{route.onestop_id}}">{{route.name}}
+				</option>
+			</datalist>
+		</div>
+		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip</button>
+	</div>
+	<div>
+		<button type="button" class="btn btn-default" ng-click="vm.stopsRequest()">transit data test</button>
+		<table class="table">
+			<tr ng-repeat="row in vm.stopsData track by $index">
+				<td ng-repeat="cell in row track by $index">{{cell}}</td>
+			</tr>
+		</table>
 	</div>
 
 <!-- 	<div class="row">

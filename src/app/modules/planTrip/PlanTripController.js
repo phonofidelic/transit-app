@@ -1,9 +1,20 @@
 'use-strict';
-angular.module('transitApp').controller('PlanTripController', ['$scope', '$http', '$timeout', 'RequestService', 'LocationService', 'TransitLandRequestService', function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService){
+angular.module('transitApp')
+.controller('PlanTripController', [
+	'$scope', 
+	'$http', 
+	'$timeout', 
+	'RequestService', 
+	'LocationService', 
+	'TransitLandRequestService', 
+	'TransitDataService',
+	function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService, TransitDataService) {
+
 	var vm = this;
 	var requestService = new RequestService();
 	var locationService = new LocationService();
 	var transitService = new TransitLandRequestService();
+	var transitDataService = new TransitDataService();
 
 	vm.inputData = {};
 	vm.inputData.departure = {};
@@ -12,12 +23,42 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
 
+	// vm.transitDataService = new TransitDataService();
+
 	// vm.tripData = {};
 
+	vm.stopsRequest = function() {
+		transitDataService.requestData().then(function(response) {
+			console.log('transitDataService response: ', response);
+			vm.stopsData = response;			
+		});
+	};
+
 	vm.transitRequest = function(region) {
-		transitService.sendRequest(region).then(function(response) {
+		transitService.routesByOperator(region).then(function(response) {
 			vm.routeData = response.data.routes;
 			console.log('transitRequest response: ', response);
+		});
+	};
+
+	vm.getStopInifo = function() {
+		console.log('getStopInifo: ');
+		vm.routeData[0].stops_served_by_route.forEach(function() {
+			transitService.getStopInfo(this.onestop_id);
+		});
+		
+	}
+
+	vm.routeBetween = function(dep_onestop_id, arr_onestop_id) {
+		transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
+			console.log('controller routeBetween response: ', response);
+		});
+	};
+
+	vm.routeRequest = function(onestop_id) {
+		transitService.routeByOnestopId(onestop_id).then(function(response) {
+			vm.routeData = response.data.routes;
+			console.log('routeRequest response: ', response);
 		});
 	};
 
@@ -110,20 +151,6 @@ angular.module('transitApp').controller('PlanTripController', ['$scope', '$http'
 			vm.tripData = response.data.trip;
 		}).catch(function(e) {
 			console.log('RequestService.send error: ', e);
-		});
-	};
-
-	vm.transitLandRequest = function() {
-		var requestParams = {};
-		var url = 'http://transit.land/api/v1/operators?state=Florida&metro=Fort%20Lauderdale';
-
-		$http({
-			method: 'GET',
-			url: url
-		}).then(function(response) {
-			console.log('transitland response: ', response);
-		}).catch(function(e) {
-			console.log('transitland error: ', e);
 		});
 	};
 }]);
