@@ -1,13 +1,13 @@
-angular.module('transitApp').factory('TransitDataService', ['$http', function($http){
-	function TransitDataService() {
+angular.module('transitApp').factory('GTFSParserService', ['$http', function($http){
+	function GTFSParserService() {
 		
 	};
 
 	// get transit data as text file and proccess response into a 2D array
-	TransitDataService.prototype.requestData = function() {
+	GTFSParserService.prototype.requestData = function(url) {
 		return $http({
 			method: 'GET',
-			url: 'http://localhost:3000/assets/transitData/stops.txt'
+			url: url
 		}).then(function(response) {
 			console.log('response: ', response);
 			var rows = response.data.split('\n');
@@ -25,5 +25,5 @@ angular.module('transitApp').factory('TransitDataService', ['$http', function($h
 		});
 	};
 
-	return TransitDataService;
+	return GTFSParserService;
 }]);

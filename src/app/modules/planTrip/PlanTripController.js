@@ -7,14 +7,14 @@ angular.module('transitApp')
 	'RequestService', 
 	'LocationService', 
 	'TransitLandRequestService', 
-	'TransitDataService',
-	function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService, TransitDataService) {
+	'GTFSParserService',
+	function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService, GTFSParserService) {
 
 	var vm = this;
 	var requestService = new RequestService();
 	var locationService = new LocationService();
 	var transitService = new TransitLandRequestService();
-	var transitDataService = new TransitDataService();
+	var gtfsParserService = new GTFSParserService();
 
 	vm.inputData = {};
 	vm.inputData.departure = {};
@@ -23,13 +23,14 @@ angular.module('transitApp')
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
 
-	// vm.transitDataService = new TransitDataService();
+	// vm.GTFSParserService = new GTFSParserService();
 
 	// vm.tripData = {};
 
 	vm.stopsRequest = function() {
-		transitDataService.requestData().then(function(response) {
-			console.log('transitDataService response: ', response);
+		var url = 'http://localhost:3000/assets/transitData/stops.txt';
+		gtfsParserService.requestData(url).then(function(response) {
+			console.log('GTFSParserService response: ', response);
 			vm.stopsData = response;			
 		});
 	};
