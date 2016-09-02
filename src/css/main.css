@@ -11,3 +11,6 @@ li.location-suggestion {
 
 .location-transit {
   background: #FF5722; }
+
+.trip {
+  margin-bottom: 10px; }

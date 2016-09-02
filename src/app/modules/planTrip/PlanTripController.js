@@ -28,7 +28,7 @@ angular.module('transitApp')
 	// vm.tripData = {};
 
 	vm.stopsRequest = function() {
-		var url = 'http://localhost:3000/assets/transitData/stops.txt';
+		var url = 'http://localhost:3000/assets/transitData/trips.txt';
 		gtfsParserService.requestData(url).then(function(response) {
 			console.log('GTFSParserService response: ', response);
 			vm.stopsData = response;			
@@ -47,8 +47,7 @@ angular.module('transitApp')
 		vm.routeData[0].stops_served_by_route.forEach(function() {
 			transitService.getStopInfo(this.onestop_id);
 		});
-		
-	}
+	};
 
 	vm.routeBetween = function(dep_onestop_id, arr_onestop_id) {
 		transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
@@ -60,6 +59,14 @@ angular.module('transitApp')
 		transitService.routeByOnestopId(onestop_id).then(function(response) {
 			vm.routeData = response.data.routes;
 			console.log('routeRequest response: ', response);
+		});
+	};
+
+	vm.scheduleStopPairs = function(onestop_id) {
+		if (vm.scheduleStopPairs) { vm.scheduleStopPairs = []; }
+		transitService.scheduleStopPairs(onestop_id).then(function(response) {
+			console.log('scheduleStopPairs: ', response);
+			vm.scheduleStopPairs = response;
 		});
 	};
 
@@ -76,9 +83,7 @@ angular.module('transitApp')
 				// vm.currentPosition.countyString = results.address_components[3].short_name;
 				vm.currentPosition.countyString = 'o-dhw-browardcountytransit';
 			});
-		});
-
-		
+		});		
 	};
 
 	vm.autoAddress = function(id) {

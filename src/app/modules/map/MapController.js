@@ -1,10 +1,12 @@
-angular.module('transitApp').controller('MapController', ['$scope', '$log','LocationService', function($scope, $log, LocationService) {
+angular.module('transitApp').controller('MapController', ['$scope', '$log','LocationService', 'GTFSParserService', function($scope, $log, LocationService, GTFSParserService) {
 	var vmMap = this;
 	var map = L.map('map', {
 		scrollWheelZoom: false
 	});
-	var locationService = new LocationService();
+	var locationService = new LocationService(),
+		gtfsParserService = new GTFSParserService();
 
+	vmMap.stops = {};
 
 	vmMap.init = function() {
 		
@@ -40,13 +42,38 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 		// locator.setPosition('bottomright');
 		// locator.addTo(map);
 
+		// setStopMArkers();
+
 		$log.log('init map');
 		return map;
 	}
 
 	// Add stop markers
-	vmMap.setStopMArkers = function() {
-
+	setStopMArkers = function() {
+		var url = 'http://localhost:3000/assets/transitData/stops.txt';
+		gtfsParserService.requestData(url).then(function(response) {
+			console.log('GTFSParserService response: ', response);
+			// vm.stopsData = response;
+			var stopCoords = [];
+			var latlng = [];
+			for (var i = 1; i < response.length -1; i++) {
+				var coord = {};
+				var latlng = L.latLng(response[i][4], response[i][5]);
+				coord.lat = response[i][4];
+				coord.lon = response[i][5];
+				stopCoords.push(latlng);
+			}
+			console.log('stop coords: ', stopCoords);
+			return stopCoords;
+		}).then(function(stopCoords) {
+			stopCoords.forEach(function(stop) {
+				L.marker([stop.lat, stop.lng]).addTo(map);
+			})
+			var polyline = L.polyline(stopCoords, {color: 'red'}).addTo(map);
+			map.fitBounds(polyline.getBounds());
+		}).catch(function(e) {
+			console.log('marker error: ', e);
+		});
 	};
 
 	// TODO: move into service? ***********************************

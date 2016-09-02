@@ -29,9 +29,6 @@
 				   ng-focus="departureFocused = true"
 				   onClick="document.getElementById('arrival-inp').select()">
 		</div>
-		
-	
-		
 	</form>
 
 	<div ng-show="vm.tripData">
@@ -40,7 +37,7 @@
 			<div class="location-transit" ng-show="move.transit_info">
 				<div><i class="fa fa-bus" aria-hidden="true"></i> onestop_id: {{move.transit_info.onestop_id}}</div>
 				<ul ng-repeat="stop in move.transit_info.transit_stops">
-					<li>{{stop.name}} {{stop.onestop_id}}</li>
+					<li>{{stop.name}} {{stop.onestop_id}} {{stop.departure_date_time}}</li>
 				</ul>
 			</div>
 			<div class="trip-instruction">{{move.instruction}}</div>
@@ -49,8 +46,8 @@
 
 	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
 	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
-	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">transitland request</button>
-	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">route request</button>
+	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">transitland request (routesByOperator)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">route request (routeByOnestopId)</button>
 
 	<div class="row" ng-show="route">
 		<div class="col-md-6">
@@ -58,7 +55,7 @@
 			<input list="routes-inp" name="" ng-model="vm.inputData.departure.onestop_id">
 			<datalist id="routes-inp">
 				<option ng-repeat="route in vm.routeData[0].stops_served_by_route" 
-						value="{{route.stop_onestop_id}}" 
+						value="{{route.stop_onestop_id}}">
 				</option>
 			</datalist>
 		</div>
@@ -72,7 +69,21 @@
 			</datalist>
 		</div>
 		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip</button>
+		<!-- <button type="button" class="btn btn-default" ng-click="vm.scheduleStopPairs(vm.inputData.departure.onestop_id)">show trip</button> -->
 	</div>
+
+	<table class="table">
+		<tr class="trip" ng-repeat="stopPair in vm.scheduleStopPairs">
+			<td>
+				{{stopPair.trip_headsign}}
+				<ul>
+					<li><strong>departure time:</strong> {{stopPair.origin_departure_time}} </li>
+					<li><strong>arrival time:</strong> {{stopPair.destination_arrival_time}}</li>
+				</ul>
+			</td>
+		</tr>
+	</table>
+
 	<div>
 		<button type="button" class="btn btn-default" ng-click="vm.stopsRequest()">transit data test</button>
 		<table class="table">
