@@ -27,6 +27,7 @@ angular.module('transitApp')
 
 	// vm.tripData = {};
 
+	// GTFS data request
 	vm.stopsRequest = function() {
 		var url = 'http://localhost:3000/assets/transitData/trips.txt';
 		gtfsParserService.requestData(url).then(function(response) {
@@ -35,6 +36,7 @@ angular.module('transitApp')
 		});
 	};
 
+	// Retrieve list of routes serviced by operator 
 	vm.transitRequest = function(region) {
 		transitService.routesByOperator(region).then(function(response) {
 			vm.routeData = response.data.routes;
@@ -69,6 +71,27 @@ angular.module('transitApp')
 			vm.scheduleStopPairs = response;
 		});
 	};
+
+	// Get rout stop pattern by a routes onestop id
+	vm.routeStopPattern = function(routeId) {
+		transitService.routeStopPattern(routeId).then(function(response) {
+			var queryString = '';
+			response.forEach(function(stop) {
+				queryString+= stop+",";
+			});
+			queryString = queryString.slice(0, -1);
+
+			// Get data for all stops in stop pattern
+			$http.get('http://transit.land/api/v1/stops?onestop_id='+queryString+'&per_page=100').then(function(response) {
+				console.log('stops from routeStopPattern: ', response);
+				console.log('stop names: ');
+				response.data.stops.forEach(function(stop) {
+					console.log(stop.name);
+				});
+				
+			});
+		});
+	}
 
 	vm.getCurrentPosition = function() {
 		var position = locationService.getCurrentPosition().then(function(position) {
@@ -122,8 +145,8 @@ angular.module('transitApp')
 		}
 	};
 
-
-
+	// Retrieve rout info between current position or departure input value
+	// and arrival input value
 	vm.sendRequest = function(input) {
 		var requestParams = {
 			"locations": [

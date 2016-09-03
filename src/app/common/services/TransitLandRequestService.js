@@ -130,6 +130,24 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 			console.log('schedule_stop_pair error: ', e);
 		});
 	};
+
+	TransitLandRequestService.prototype.routeStopPattern = function(routeId) {
+		return $http({
+			method: 'GET',
+			url: 'http://transit.land/api/v1/route_stop_patterns?onestop_id=' + routeId
+		}).then(function(response) {
+			console.log('from routeStopPattern: ')
+			console.log(response);
+			var stops = [];
+			response.data.route_stop_patterns[0].stop_pattern.forEach(function(stop) {
+				// console.log(stop)
+				stops.push(stop);
+			});
+			return stops;
+		}).catch(function(err) {
+			console.log('routeStopPattern error: ', err);
+		});
+	};
 	return TransitLandRequestService;
 }]);
 

@@ -44,10 +44,13 @@
 		</div>
 	</div>
 
-	<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
-	<button class="btn btn-primary" ng-click="vmMap.setRoute()">set route (vmMap.setRoute())</button>
+	<div>
+		<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
+	</div>
+
 	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">transitland request (routesByOperator)</button>
 	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">route request (routeByOnestopId)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeStopPattern('r-dhxj-60-faba82-89158f')">routeStopPattern()</button>
 
 	<div class="row" ng-show="route">
 		<div class="col-md-6">
@@ -96,10 +99,11 @@
 <!-- 	<div class="row">
 		<div class="col-sm-12" ng-repeat="route in vm.routeData">{{route.name}}</div>
 	</div> -->
-
+	
 	<div class="row">
 		<div class="col-sm-12 map-container">
 			<map-directive></map-directive>
 		</div>
 	</div>
+
 </div>
