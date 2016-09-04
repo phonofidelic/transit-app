@@ -16,6 +16,8 @@ angular.module('transitApp')
 	var transitService = new TransitLandRequestService();
 	var gtfsParserService = new GTFSParserService();
 
+	vm.gtfsParserService = new GTFSParserService();
+
 	vm.inputData = {};
 	vm.inputData.departure = {};
 	vm.inputData.departure.coords = {};
@@ -28,11 +30,17 @@ angular.module('transitApp')
 	// vm.tripData = {};
 
 	// GTFS data request
-	vm.stopsRequest = function() {
-		var url = 'http://localhost:3000/assets/transitData/trips.txt';
+	vm.gtfsData = function() {
+		var url = 'http://localhost:3000/assets/transitData/calendar.txt';
 		gtfsParserService.requestData(url).then(function(response) {
 			console.log('GTFSParserService response: ', response);
 			vm.stopsData = response;			
+		});
+	};
+
+	vm.gtfsToJSON = function() {
+		$.get('http://localhost:3000/assets/transitData/calendar.txt', function(data) {
+			console.log('$.toJSON: ', data);
 		});
 	};
 

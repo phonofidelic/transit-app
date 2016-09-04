@@ -88,7 +88,8 @@
 	</table>
 
 	<div>
-		<button type="button" class="btn btn-default" ng-click="vm.stopsRequest()">transit data test</button>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">transit data test</button>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">gtfsToJSON</button>
 		<table class="table">
 			<tr ng-repeat="row in vm.stopsData track by $index">
 				<td ng-repeat="cell in row track by $index">{{cell}}</td>

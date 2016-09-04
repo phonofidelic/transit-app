@@ -10,7 +10,9 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 			url: url
 		}).then(function(response) {
 			console.log('response: ', response);
+			
 			var rows = response.data.split('\n');
+
 			// console.log('rows:', rows);
 			
 			cols =  [];
@@ -19,10 +21,67 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 				cols.push(row.split(','));
 			});
 			// console.log('cols: ', cols);
+
+			// console.log('cols:', cols)
+			// for (item in cols) {
+			// 	for var 
+			// 		console.log('value ', value)
+			// 		if (angular.isUndefined(value)) {
+			// 			console.log('value is undefined: ', value);
+			// 			value = '';
+			// 		}
+			// }
+
+			// cols.forEach(function(item) {
+			// 	item.forEach(function(value) {
+			// 		console.log('vlue: ', value)
+			// 		if (angular.isUndefined(value)) {
+			// 			console.log('value is undefined: ', value)
+			// 			value = '';
+			// 		}
+			// 	})
+			// })
+
 			return cols;
 		}).catch(function(e) {
 			console.log('transitData error: ', e);
 		});
+	};
+
+	GTFSParserService.prototype.toJSON = function(gtfsArray) {
+		// Create an array to hold our json objects
+		var json = [];
+		var index = 0;
+
+		// The first sub-array in gtfsArray contains the value keys
+		for (var i = 1; i < gtfsArray.length; i ++) {
+			var obj = {};
+			json.push(obj);
+		}
+
+		// Create an array to hold the cell values from gtfsArray,
+		// skip the array in gtfsArray containing key names
+		// and extract cell values into exttractedVals array
+		var extractedVals = [];		
+		var values = gtfsArray.slice(1);		
+		values.forEach(function(row) {
+			for (var i = 0; i < row.length; i++) {
+				extractedVals.push(row[i])
+			}
+		});
+
+		// Assign key valye pairs to each object in json array
+		json.forEach(function(item) {			
+			gtfsArray[0].forEach(function(keyName) {
+				var key = keyName;
+				if (angular.isUndefined(extractedVals[index])) {
+					extractedVals[i] = '';
+				}
+				item[key] = extractedVals[index];
+				index++;
+			});	
+		});
+		console.log('json: ', json);		
 	};
 
 	return GTFSParserService;
