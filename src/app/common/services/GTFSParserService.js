@@ -12,35 +12,12 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 			console.log('response: ', response);
 			
 			var rows = response.data.split('\n');
-
-			// console.log('rows:', rows);
 			
 			cols =  [];
 
 			rows.forEach(function(row) {
 				cols.push(row.split(','));
 			});
-			// console.log('cols: ', cols);
-
-			// console.log('cols:', cols)
-			// for (item in cols) {
-			// 	for var 
-			// 		console.log('value ', value)
-			// 		if (angular.isUndefined(value)) {
-			// 			console.log('value is undefined: ', value);
-			// 			value = '';
-			// 		}
-			// }
-
-			// cols.forEach(function(item) {
-			// 	item.forEach(function(value) {
-			// 		console.log('vlue: ', value)
-			// 		if (angular.isUndefined(value)) {
-			// 			console.log('value is undefined: ', value)
-			// 			value = '';
-			// 		}
-			// 	})
-			// })
 
 			return cols;
 		}).catch(function(e) {
@@ -81,7 +58,8 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 				index++;
 			});	
 		});
-		console.log('json: ', json);		
+		console.log('json: ', json);
+		return json;		
 	};
 
 	return GTFSParserService;

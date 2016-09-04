@@ -31,10 +31,17 @@ angular.module('transitApp')
 
 	// GTFS data request
 	vm.gtfsData = function() {
-		var url = 'http://localhost:3000/assets/transitData/calendar.txt';
+		var url = 'http://localhost:3000/assets/transitData/stop_times.txt';
 		gtfsParserService.requestData(url).then(function(response) {
 			console.log('GTFSParserService response: ', response);
-			vm.stopsData = response;			
+			// vm.stopsData = response;
+			return gtfsParserService.toJSON(response);	
+		})
+		.then(function(stopInfo) {
+			console.log('stopInfo: ', stopInfo[1].trip_id);
+			// stopInfo.forEach(function(item) {
+			// 	console.log(item.stop_id)
+			// })
 		});
 	};
 
