@@ -48,9 +48,9 @@
 		<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
 	</div>
 
-	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">transitland request (routesByOperator)</button>
-	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">route request (routeByOnestopId)</button>
-	<button type="button" class="btn btn-default" ng-click="vm.routeStopPattern('r-dhxj-60-faba82-89158f')">routeStopPattern()</button>
+	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">vm.transitRequest(vm.currentPosition.countyString) (routesByOperator)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">vm.routeRequest('r-dhw-110~595esunrise~miami') (routeByOnestopId)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeStopPattern('r-dhxj-60-faba82-89158f')">vm.routeStopPattern('r-dhxj-60-faba82-89158f')</button>
 
 	<div class="row" ng-show="route">
 		<div class="col-md-6">

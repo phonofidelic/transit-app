@@ -38,7 +38,12 @@ angular.module('transitApp')
 			return gtfsParserService.toJSON(response);	
 		})
 		.then(function(stopInfo) {
-			console.log('stopInfo: ', stopInfo[1].trip_id);
+			console.log('stopInfo: ', stopInfo);
+			result = gtfsParserService.groupBy(stopInfo, function(item) {
+				return [item.trip_id];
+			});
+			console.log('result: ', result);
+			// publicVar = result;
 			// stopInfo.forEach(function(item) {
 			// 	console.log(item.stop_id)
 			// })
@@ -47,7 +52,7 @@ angular.module('transitApp')
 
 	vm.gtfsToJSON = function() {
 		$.get('http://localhost:3000/assets/transitData/calendar.txt', function(data) {
-			console.log('$.toJSON: ', data);
+			console.log('toJSON: ', data);
 		});
 	};
 

@@ -62,5 +62,61 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 		return json;		
 	};
 
+	GTFSParserService.prototype.groupBy = function(objArr, f) {
+		//***************************
+		// http://stackoverflow.com/questions/14592799/object-array-group-by-an-element/14593003
+		//***************************
+		// var sorted = {};
+
+		// for (var i = 0; i < objArr.length; i++) {
+		// 	var obj = objArr[i];
+		// 	// console.log('obj: ', obj);
+
+		// 	// if (sorted[obj.trip_id] === undefined) {
+		// 		sorted[obj.trip_id] = [objArr[i]];
+		// 	// }
+
+		// 	// sorted[obj.trip_id].push(obj.trip_id);
+		// }
+		// console.log('sorted: ', sorted);
+
+
+
+		/***************************
+		// http://codereview.stackexchange.com/questions/37028/grouping-elements-in-array-by-multiple-properties
+
+		function groupBy( array , f )
+		{
+		  var groups = {};
+		  array.forEach( function( o )
+		  {
+		    var group = JSON.stringify( f(o) );
+		    groups[group] = groups[group] || [];
+		    groups[group].push( o );  
+		  });
+		  return Object.keys(groups).map( function( group )
+		  {
+		    return groups[group]; 
+		  })
+		}
+
+		var result = groupBy(list, function(item)
+		{
+		  return [item.lastname, item.age];
+		});
+		*****************************/
+		var groups = {};
+		objArr.forEach(function(item) {
+			var group = JSON.stringify(f(item));
+			// console.log('group: ', group)
+			groups[group] = groups[group] || [];
+			groups[group].push(item);
+		});
+		console.log('groups: ', groups);
+		return Object.keys(groups).map(function(group) {
+			return groups[group];
+		});
+	};
+
 	return GTFSParserService;
 }]);

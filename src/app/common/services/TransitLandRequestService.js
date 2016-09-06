@@ -5,10 +5,9 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 
 	TransitLandRequestService.prototype.routesByOperator = function(region) {
 		var requestParams = {
-			region: region,
-
+			region: region
 		};
-		var url = 'https://transit.land/api/v1/routes?operated_by='+
+		var url = 'https://transit.land/api/v1/routes.geojson?operated_by='+
 					   requestParams.region;
 
 		return $http({
