@@ -7,7 +7,7 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 		var requestParams = {
 			region: region
 		};
-		var url = 'https://transit.land/api/v1/routes.geojson?operated_by='+
+		var url = 'https://transit.land/api/v1/routes?operated_by='+
 					   requestParams.region;
 
 		return $http({

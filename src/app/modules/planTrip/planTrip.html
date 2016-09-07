@@ -88,8 +88,8 @@
 	</table>
 
 	<div>
-		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">transit data test</button>
-		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">gtfsToJSON</button>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">vm.gtfsData()</button>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">vm.gtfsParserService.toJSON(vm.stopsData)</button>
 		<table class="table">
 			<tr ng-repeat="row in vm.stopsData track by $index">
 				<td ng-repeat="cell in row track by $index">{{cell}}</td>
@@ -103,7 +103,7 @@
 	
 	<div class="row">
 		<div class="col-sm-12 map-container">
-			<map-directive></map-directive>
+			<div id="map" ng-init="vm.initMap()"></div>
 		</div>
 	</div>
 

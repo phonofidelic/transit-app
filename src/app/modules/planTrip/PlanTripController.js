@@ -2,19 +2,24 @@
 angular.module('transitApp')
 .controller('PlanTripController', [
 	'$scope', 
-	'$http', 
+	'$http',
+	'$log', 
 	'$timeout', 
 	'RequestService', 
 	'LocationService', 
 	'TransitLandRequestService', 
 	'GTFSParserService',
-	function($scope, $http, $timeout, RequestService, LocationService, TransitLandRequestService, GTFSParserService) {
+	function($scope, $http, $log, $timeout, RequestService, LocationService, TransitLandRequestService, GTFSParserService) {
 
 	var vm = this;
 	var requestService = new RequestService();
 	var locationService = new LocationService();
 	var transitService = new TransitLandRequestService();
 	var gtfsParserService = new GTFSParserService();
+
+	var map = L.map('map', {
+		scrollWheelZoom: false
+	});
 
 	vm.gtfsParserService = new GTFSParserService();
 
@@ -24,10 +29,6 @@ angular.module('transitApp')
 	vm.inputData.arrival = {};
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
-
-	// vm.GTFSParserService = new GTFSParserService();
-
-	// vm.tripData = {};
 
 	// GTFS data request
 	vm.gtfsData = function() {
@@ -43,10 +44,6 @@ angular.module('transitApp')
 				return [item.trip_id];
 			});
 			console.log('result: ', result);
-			// publicVar = result;
-			// stopInfo.forEach(function(item) {
-			// 	console.log(item.stop_id)
-			// })
 		});
 	};
 
@@ -202,4 +199,42 @@ angular.module('transitApp')
 			console.log('RequestService.send error: ', e);
 		});
 	};
+
+	vm.initMap = function() {
+		
+
+		// // Leaflet map
+		// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		//   	attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+		//   	maxZoom: 18
+		// }).addTo(map);
+
+		// Tangram map
+		var layer = Tangram.leafletLayer({
+	  		scene: 'https://raw.githubusercontent.com/tangrams/refill-style-more-labels/gh-pages/refill-style-more-labels.yaml',
+	  		attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | <a href="http://www.openstreetmap.org/about" target="_blank">&copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+		});
+		layer.addTo(map);
+
+		// gets current position and initializez map with those coords
+		locationService.getCurrentPosition().then(function(position) {
+			map.setView([position.coords.latitude, position.coords.longitude], 14);
+		}).catch(function(e) {
+			console.log('getPosition error: ', e);
+		});	
+
+		var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
+
+		/* Leaflet.Locate
+			https://github.com/domoritz/leaflet-locatecontrol
+		 */
+		var lc = L.control.locate({
+			position: 'topleft',
+			keepCurrentZoomLevel: true
+		}).addTo(map);
+		lc.start();
+
+		$log.log('init map');
+		return map;
+	}
 }]);

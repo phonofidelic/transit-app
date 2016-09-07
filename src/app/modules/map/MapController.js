@@ -13,8 +13,9 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 
 		// // Leaflet map
 		// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		//   	attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors</a>'})
-		// 	.addTo(map);
+		//   	attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+		//   	maxZoom: 18
+		// }).addTo(map);
 
 		// Tangram map
 		var layer = Tangram.leafletLayer({
@@ -25,15 +26,19 @@ angular.module('transitApp').controller('MapController', ['$scope', '$log','Loca
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
-			map.setView([position.coords.latitude, position.coords.longitude], 16);
+			map.setView([position.coords.latitude, position.coords.longitude], 14);
 		}).catch(function(e) {
 			console.log('getPosition error: ', e);
 		});	
 
 		var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
 
+		/* Leaflet.Locate
+			https://github.com/domoritz/leaflet-locatecontrol
+		 */
 		var lc = L.control.locate({
 			position: 'topleft',
+			keepCurrentZoomLevel: true
 		}).addTo(map);
 
 		lc.start();
