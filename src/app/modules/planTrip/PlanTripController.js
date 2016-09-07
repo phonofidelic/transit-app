@@ -237,4 +237,5 @@ angular.module('transitApp')
 		$log.log('init map');
 		return map;
 	}
+	// test git-config
 }]);
