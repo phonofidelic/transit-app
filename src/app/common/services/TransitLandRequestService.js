@@ -45,6 +45,18 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 		});
 	};
 
+	TransitLandRequestService.prototype.routesByBbox = function(coords) {
+		var swLat = coords.lat + 0.05,
+			swLon = coords.lon - 0.05,
+			neLat = coords.lat -0.05,
+			neLon = coords.lon + 0.05;
+		var url = 'https://transit.land/api/v1/routes?bbox=' + swLon +','+ swLat +','+ neLon +','+ neLat;
+
+		$http.get(url).then(function(response) {
+			console.log('bbox response: ', response);
+		});
+	};
+
 	TransitLandRequestService.prototype.getStopInfo = function(onestop_id) {
 		var url = 'http://transit.land/api/v1/stops?onestop_id='+onestop_id;
 
