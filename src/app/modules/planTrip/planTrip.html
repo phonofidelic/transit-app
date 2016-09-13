@@ -1,4 +1,4 @@
-<div class="container" ng-init="vm.getCurrentPosition()">
+<div class="container" ng-init="vm.getCurrentPosition(); vm.init()">
 	<form action="" role="form">
 		<legend>Form title</legend>
 	
@@ -72,7 +72,7 @@
 				</option>
 			</datalist>
 		</div>
-		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip</button>
+		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button>
 		<!-- <button type="button" class="btn btn-default" ng-click="vm.scheduleStopPairs(vm.inputData.departure.onestop_id)">show trip</button> -->
 	</div>
 

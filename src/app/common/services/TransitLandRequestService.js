@@ -54,6 +54,7 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 
 		$http.get(url).then(function(response) {
 			console.log('bbox response: ', response);
+			// 
 		});
 	};
 

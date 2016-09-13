@@ -58,7 +58,6 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 				index++;
 			});	
 		});
-		console.log('json: ', json);
 		return json;		
 	};
 

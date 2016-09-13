@@ -30,6 +30,66 @@ angular.module('transitApp')
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
 
+	function openDatabase() {
+		if (!navigator.serviceWorker) {
+			return Promise.resolve();
+		}
+		console.log('initiating database');
+		return idb.open('gtfsData', 1, function(upgradeDb) {
+			var store = upgradeDb.createObjectStore('stops', {
+				keyPath: 'stop_id'
+			});
+			store.createIndex('by-id', 'stop_id');
+		});
+	};
+
+	function registerServiceWorker() {
+		if (!navigator.serviceWorker) return;
+
+		navigator.serviceWorker.register('/sw.js').then(function(reg) {
+			console.log('serviceWorker registered!');
+			if (!navigator.serviceWorker.controller) {
+				return;
+			}
+
+			if (reg.waiting) {
+				vm.updateReady(reg.waiting);
+				return;
+			}
+
+			if (reg.installing) {
+				vm.trackInstalling(reg.installing);
+				return;
+			}
+
+			reg.addEventListener('updatefound', function() {
+				vm.trackInstalling(reg.installing);
+			});
+
+			var refreshing;
+			navigator.serviceWorker.addEventListener('controllerchange', function() {
+				if (refreshing) return;
+				window.location.reload();
+				refreshing = true;
+			});
+		}).catch(function(err) {
+			console.log('serviceWorker registration error: ', err);
+		});
+	};
+
+	vm.updateReady = function(worker) {
+		console.log('updateReady');
+	};
+
+	vm.trackInstalling = function(worker) {
+		console.log('trackInstalling');
+	};
+
+	vm.init = function() {
+		openDatabase();
+		registerServiceWorker();
+	}
+
 	// GTFS data request
 	vm.gtfsData = function() {
 		var url = 'http://localhost:3000/assets/transitData/stop_times.txt';
@@ -38,12 +98,15 @@ angular.module('transitApp')
 			// vm.stopsData = response;
 			return gtfsParserService.toJSON(response);	
 		})
-		.then(function(stopInfo) {
-			console.log('stopInfo: ', stopInfo);
-			result = gtfsParserService.groupBy(stopInfo, function(item) {
-				return [item.trip_id];
+		.then(function(jsonData) {
+			console.log('jsonData: ', jsonData);
+			result = gtfsParserService.groupBy(jsonData, function(item) {
+				return [item.stop_id];
 			});
-			console.log('result: ', result);
+			console.log('result: ', result[0]);
+			result[0].forEach(function(item) {
+				console.log(item.departure_time)
+			})
 		});
 	};
 
@@ -162,7 +225,7 @@ angular.module('transitApp')
 		}
 	};
 
-	// Retrieve rout info between current position or departure input value
+	// Retrieve route info between current position or departure input value
 	// and arrival input value
 	vm.sendRequest = function(input) {
 		var requestParams = {
@@ -198,6 +261,10 @@ angular.module('transitApp')
 		}).catch(function(e) {
 			console.log('RequestService.send error: ', e);
 		});
+	};
+
+	function addMarker(coords) {
+		return L.marker(coords).addTo(map);
 	};
 
 	vm.initMap = function() {
