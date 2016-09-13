@@ -4,20 +4,30 @@
 <head>
 	<base href="/">
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 	<title>transit app</title>
+	<!-- build:depCss -->
 	<!-- bootstrap css -->
 	<link rel="stylesheet" type="text/css" href="lib/bootstrap/dist/css/bootstrap.min.css">
 	<!-- leaflet css -->
 	<link rel="stylesheet" type="text/css" href="lib/leaflet/dist/leaflet.css">
-	<link rel="stylesheet" type="text/css" href="lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.css">
-	<link rel="stylesheet" href="https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css">
+	<link rel="stylesheet" type="text/css" href="lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.css">	
 	<link rel="stylesheet" type="text/css" href="lib/leaflet.locatecontrol/dist/L.Control.Locate.css">
-	<!-- fontawsome -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	
+	<!-- endbuild -->
+	<!-- build:mainCss -->
 	<!-- main css -->
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<!-- endbuild -->
+	<link rel="stylesheet" href="https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css">
+	<!-- fontawsome -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
+	<!-- build:tangram -->
+	<script type="text/javascript" src="lib/tangram/dist/tangram.min.js"></script>
+	<!-- endbuild -->
+
+	<!-- build:headScripts -->
 	<!-- jqury -->
 	<script type="text/javascript" src="lib/jquery/dist/jquery.js"></script>
 	<!-- angular -->
@@ -31,16 +41,17 @@
 	<!-- tangram -->
 	<!-- leaflet -->
 	<script type="text/javascript" src="lib/leaflet/dist/leaflet.js"></script>
-	<script type="text/javascript" src="lib/tangram/dist/tangram.min.js"></script>
+	
 	<script type="text/javascript" src="lib/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 	<script type="text/javascript" src="lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.js"></script>
 	<!-- <script src="https://unpkg.com/lrm-mapzen/dist/lrm-mapzen.js"></script> -->
 	<script type="text/javascript" src="lib/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 	<!-- <script src="https://mapzen.com/js/mapzen.js"></script> -->
-	<!-- google scripts -->
-	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJa-YCzQ7t6AhlXCj7c-9p1b0QdlWZWG8&libraries=places,geocoder"></script>
 	<!-- idb promises -->
 	<script type="text/javascript" src="lib/indexeddb-promised/lib/idb.js"></script>
+	<!-- endbuild -->
+	<!-- google scripts -->
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJa-YCzQ7t6AhlXCj7c-9p1b0QdlWZWG8&libraries=places,geocoder"></script>
 </head>
 <body>
 	<div class="container">
@@ -54,7 +65,7 @@
 			
 		</footer>
 	</div>
-
+	<!-- build:appScripts -->
 	<script type="text/javascript" src="app/app.module.js"></script>
 	<script type="text/javascript" src="app/app.config.js"></script>
 	<!-- common -->
@@ -67,5 +78,6 @@
 	<!-- map -->
 	<script type="text/javascript" src="app/modules/map/MapController.js"></script>
 	<script type="text/javascript" src="app/modules/map/Mapdirective.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

@@ -1,5 +1,6 @@
 /*eslint-env node*/
 var gulp = require('gulp'),
+	fs = require('fs'),
 	sass = require('gulp-sass'),
 	autoprefixer = require('gulp-autoprefixer'),
 	eslint = require('gulp-eslint'),
@@ -12,6 +13,8 @@ var gulp = require('gulp'),
 	multiDest = require('gulp-multi-dest'),
 	clean = require('gulp-clean'),
 	rename = require('gulp-rename'),
+	inject = require('gulp-inject'),
+	flatten = require('gulp-flatten'),
 	browserSync = require('browser-sync').create();
 
 //  browser sync
@@ -24,37 +27,101 @@ gulp.task('dev-sync', function() {
 	browserSync.stream();	
 });
 
+gulp.task('build-sync', function() {
+	browserSync.init({
+		server: {
+			baseDir: './dist'
+		}
+	});
+	browserSync.stream();	
+});
+
 /**
  * clean
 **/
 gulp.task('clean-dist', function() {
-	gulp.src('dist')
-	.pipe(clean({force: true}));
+	// from http://www.geedew.com/remove-a-directory-that-is-not-empty-in-nodejs/
+	var deleteFolderRecursive = function(path) {
+	  if( fs.existsSync(path) ) {
+	    fs.readdirSync(path).forEach(function(file,index){
+	      var curPath = path + "/" + file;
+	      if(fs.lstatSync(curPath).isDirectory()) { // recurse
+	        deleteFolderRecursive(curPath);
+	      } else { // delete file
+	        fs.unlinkSync(curPath);
+	      }
+	    });
+    fs.rmdirSync(path);
+  }
+};
+	deleteFolderRecursive('dist');
 });
+
+
+
+
+gulp.task('test-task', function() {
+	return fs.readdir('src/lib', function(err, files) {
+		console.log('files: ', files);
+		file.forEach(function(file) {
+			return '<script>'
+		})
+	});
+})
 
 /**
  * markup
 */
-gulp.task('html', function() {
-	gulp.src('src/**/*.html')
-	.pipe(browserSync.stream())
-});
-gulp.task('watch-html', function() {
-	gulp.watch('src/**/*.html', ['html']);
+gulp.task('index', function() {
+	gulp.src('src/index.html')
+	.pipe(htmlReplace({
+		// 'headScripts': [
+		// 	'lib/jquery.min.js',
+		// 	'lib/angular.min.js',
+		// 	'lib/angular-route.min.js',
+		// 	'lib/bootstrap.min.js',
+		// 	'lib/idb.js',
+		// 	'lib/leaflet.js',
+		// 	'lib/tangram.min.js',
+		// 	'lib/leaflet-routing-machine.min.js',
+		// 	'lib/leaflet-geocoder-mapzen.js',
+		// 	'lib/L.Control.Locate.min.js'
+		// ],
+		'headScripts': 'lib/deps.min.js',
+		'tangram': 'lib/tangram.min.js',
+		'appScripts': 'app/app.min.js',
+		'depCss': 'css/deps.min.css',
+		'mainCss': 'css/main.min.css'
+	}))
+	.pipe(gulp.dest('dist'))
+	.pipe(browserSync.stream());
 });
 
 /**
  * deps
 **/
 gulp.task('deps', function() {
-	gulp.src(['src/lib/**/*.min.js', 'src/lib/leaflet/dist/leaflet.js'])
+	gulp.src(['src/lib/angular/angular.min.js', 		  
+			  'src/lib/leaflet/dist/leaflet.js', 
+			  'src/lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.js', 
+			  'src/lib/indexeddb-promised/lib/idb.js',
+			  'src/lib/**/*.min.js'])
+	.pipe(flatten())
+	.pipe(concat('deps.min.js'))
 	.pipe(gulp.dest('dist/lib'));
 });
+// depsStandalone
+gulp.task('depsStandalone', function() {
+	gulp.src(['src/lib/tangram/dist/tangram.min.js'])
+	.pipe(gulp.dest('dist/lib'));
+})
 
-gulp.task('minifyDeps', function() {
-	gulp.src(['src/lib/indexeddb-promised/lib/idb.js'])
-	.pipe(uglify())
-	.pipe(gulp.dest('dist/lib/indexeddb-promised/lib'));
+/*
+ * assets
+*/
+gulp.task('assets', function() {
+	gulp.src('src/lib/leaflet-geocoder-mapzen/dist/images/search@2x.png')
+	.pipe(gulp.dest('dist/css/leaflet-geocoder-mapzen/src/images'));
 });
 
 /**
@@ -66,8 +133,6 @@ gulp.task('styles', function() {
 	.pipe(autoprefixer({
 		browsers: ['last 3 versions']
 	}))
-	// TODO: switch to dist directory on build
-	// .pipe(gulp.multiDest(['./src/css', './dist/css']));
 	.pipe(gulp.dest('src/css'))
 	.pipe(minCss())
 	.pipe(rename({
@@ -80,12 +145,33 @@ gulp.task('watch-css', function() {
 	gulp.watch('src/assets/sass/**/*.scss', ['styles']);	
 });
 
+/*
+ * depCss
+*/
+gulp.task('depCss', function() {
+	gulp.src('src/lib/**/*.css')
+	.pipe(minCss())
+	.pipe(concatCss('deps.min.css'))
+	.pipe(gulp.dest('dist/css'));
+});
+
+/*
+ * templates
+*/
+gulp.task('templates', function() {
+	gulp.src('src/app/modules/**/*.html')
+	.pipe(gulp.dest('dist/app/modules'));
+});
+
 /**
  * app
 */
 gulp.task('app', function() {
-	gulp.src('src/app/**/*.js')
-	.pipe(browserSync.stream())
+	gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js'])
+	.pipe(concat('app.min.js'))
+	.pipe(uglify())
+	.pipe(gulp.dest('dist/app'))
+	.pipe(browserSync.stream());
 });
 gulp.task('watch-app', function() {
 	gulp.watch('src/app/**/*.js', ['app']);
@@ -109,4 +195,4 @@ gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 // test 
 
 // build
-gulp.task('build', ['styles', 'deps', 'minifyDeps']);
+gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'build-sync']);
