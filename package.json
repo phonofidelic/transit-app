@@ -21,6 +21,7 @@
     "eslint-config-angular": "^0.5.0",
     "eslint-plugin-angular": "^1.1.1",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.0",
     "gulp-concat-css": "^2.3.0",
     "gulp-eslint": "^2.0.0",
@@ -28,11 +29,12 @@
     "gulp-jasmine-phantom": "^3.0.0",
     "gulp-minify-css": "^1.2.4",
     "gulp-multi-dest": "0.0.4",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.3.2",
     "gulp-uglify": "^1.5.4",
     "jasmine": "^2.4.1",
     "karma": "^0.13.22",
     "karma-chrome-launcher": "^1.0.1",
     "karma-jasmine": "^1.0.2"
-  }  
+  }
 }

@@ -10,6 +10,8 @@ var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	htmlReplace = require('gulp-html-replace'),
 	multiDest = require('gulp-multi-dest'),
+	clean = require('gulp-clean'),
+	rename = require('gulp-rename'),
 	browserSync = require('browser-sync').create();
 
 //  browser sync
@@ -20,6 +22,14 @@ gulp.task('dev-sync', function() {
 		}
 	});
 	browserSync.stream();	
+});
+
+/**
+ * clean
+**/
+gulp.task('clean-dist', function() {
+	gulp.src('dist')
+	.pipe(clean({force: true}));
 });
 
 /**
@@ -34,6 +44,20 @@ gulp.task('watch-html', function() {
 });
 
 /**
+ * deps
+**/
+gulp.task('deps', function() {
+	gulp.src(['src/lib/**/*.min.js', 'src/lib/leaflet/dist/leaflet.js'])
+	.pipe(gulp.dest('dist/lib'));
+});
+
+gulp.task('minifyDeps', function() {
+	gulp.src(['src/lib/indexeddb-promised/lib/idb.js'])
+	.pipe(uglify())
+	.pipe(gulp.dest('dist/lib/indexeddb-promised/lib'));
+});
+
+/**
  * styles
 */
 gulp.task('styles', function() {
@@ -45,8 +69,11 @@ gulp.task('styles', function() {
 	// TODO: switch to dist directory on build
 	// .pipe(gulp.multiDest(['./src/css', './dist/css']));
 	.pipe(gulp.dest('src/css'))
-	// .pipe(minCss())
-	// .pipe(gulp.dest('dist/css'))
+	.pipe(minCss())
+	.pipe(rename({
+		extname: '.min.css'
+	}))
+	.pipe(gulp.dest('dist/css/'))
 	.pipe(browserSync.stream());
 });
 gulp.task('watch-css', function() {
@@ -82,3 +109,4 @@ gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 // test 
 
 // build
+gulp.task('build', ['styles', 'deps', 'minifyDeps']);
