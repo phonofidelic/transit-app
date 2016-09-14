@@ -22,5 +22,14 @@ li.location-suggestion {
   right: 0;
   height: 50;
   padding: 10px;
-  background: #fff;
+  background: #FF5722;
   z-index: 1000; }
+
+/* The starting CSS styles for the enter animation */
+.update-alert.ng-enter {
+  transition: 0.5s linear all;
+  opacity: 0; }
+
+/* The finishing CSS styles for the enter animation */
+.update-alert.ng-enter.ng-enter-active {
+  opacity: 1; }

@@ -29,6 +29,7 @@ angular.module('transitApp')
 	vm.inputData.arrival = {};
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
+	// vm.showToast = false;
 
 	function openDatabase() {
 		if (!navigator.serviceWorker) {
@@ -80,7 +81,7 @@ angular.module('transitApp')
 	vm.updateReady = function(worker) {
 		console.log('updateReady');
 		// show notification that an update is ready
-		
+		vm.showToast = true;
 	};
  
 	vm.trackInstalling = function(worker) {

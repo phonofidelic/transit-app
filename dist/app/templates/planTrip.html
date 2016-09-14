@@ -98,6 +98,9 @@
 		</table>
 	</div>
 
+	<button type="button" class="btn btn-default" ng-click="vm.showToast = true">fade in</button>
+	<button type="button" class="btn btn-default" ng-click="vm.showToast = false">fade out</button>
+
 <!-- 	<div class="row">
 		<div class="col-sm-12" ng-repeat="route in vm.routeData">{{route.name}}</div>
 	</div> -->
@@ -108,7 +111,7 @@
 		</div>
 	</div>
 
-	<div class="update-alert">
+	<div class="update-alert" ng-show="vm.showToast">
 		<span>An update is ready</span>
 		<span>
 			<button type="button" class="btn btn-default">refresh</button>

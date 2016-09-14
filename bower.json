@@ -26,7 +26,8 @@
     "leaflet-routing-machine": "^3.1.0",
     "typeahead.js": "^0.11.1",
     "leaflet.locatecontrol": "https://github.com/domoritz/leaflet-locatecontrol.git#^0.52.0",
-    "indexeddb-promised": "https://github.com/jakearchibald/indexeddb-promised.git"
+    "indexeddb-promised": "https://github.com/jakearchibald/indexeddb-promised.git",
+    "angular-animate": "^1.5.8"
   },
   "resolutions": {
     "angular": "^1.5.7"

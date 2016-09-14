@@ -92,11 +92,15 @@ gulp.task('index', function() {
  * deps
 **/
 gulp.task('deps', function() {
-	gulp.src(['src/lib/angular/angular.min.js', 		  
+	gulp.src([
+		// 'src/lib/angular/angular.js', 
+		// 	  'src/lib/angular-mocks/angular-mocks.js',
+		// 	  'src/lib/angular-route/angular-route.js',
+		// 	  'src/lib/angular-animate/angular-animate.js',		  
 			  'src/lib/leaflet/dist/leaflet.js', 
 			  'src/lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.js', 
 			  'src/lib/indexeddb-promised/lib/idb.js',
-			  'src/lib/**/*.min.js'])
+			  'src/lib/**/*.min.js',])
 	.pipe(flatten())
 	.pipe(concat('deps.min.js'))
 	.pipe(gulp.dest('dist/lib'));
@@ -226,7 +230,7 @@ gulp.task('lint', function() {
 });
 
 // serve
-gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
+gulp.task('serve', ['watch-css', 'watch-app', 'dev-sync']);
 
 // lint
 
