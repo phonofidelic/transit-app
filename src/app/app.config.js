@@ -3,7 +3,7 @@ angular.module('transitApp')
 	function($routeProvider, $locationProvider) {
 		$routeProvider
 			.when('/', {
-				templateUrl: 'app/modules/planTrip/planTrip.html',
+				templateUrl: 'app/templates/planTrip.html',
 				controller: 'PlanTripController',
 				controllerAs: 'vm'
 			});

@@ -15,6 +15,9 @@ var gulp = require('gulp'),
 	rename = require('gulp-rename'),
 	inject = require('gulp-inject'),
 	flatten = require('gulp-flatten'),
+	rev = require('gulp-rev'),
+	revReplace = require('gulp-rev-replace'),
+	gulpSw = require('gulp-serviceworker'),
 	browserSync = require('browser-sync').create();
 
 //  browser sync
@@ -127,7 +130,11 @@ gulp.task('styles', function() {
 	.pipe(rename({
 		extname: '.min.css'
 	}))
-	.pipe(gulp.dest('dist/css/'))
+	.pipe(gulp.dest('dist/css'))
+	// .pipe(rev())
+	// .pipe(gulp.dest('dist/css'))
+	// .pipe(rev.manifest('main.manifest.json'))
+	// .pipe(gulp.dest('dist/css'))
 	.pipe(browserSync.stream());
 });
 gulp.task('watch-css', function() {
@@ -153,8 +160,12 @@ gulp.task('depCss', function() {
  * templates
 */
 gulp.task('templates', function() {
-	gulp.src('src/app/modules/**/*.html')
-	.pipe(gulp.dest('dist/app/modules'));
+	gulp.src('src/app/templates/**/*.html')
+	.pipe(gulp.dest('dist/app/templates'))
+	// .pipe(rev())
+	// .pipe(gulp.dest('dist/app/templates'))
+	// .pipe(rev.manifest('templates.manifest.json'))
+	// .pipe(gulp.dest('dist/app/templates'));
 });
 
 /**
@@ -165,6 +176,10 @@ gulp.task('app', function() {
 	.pipe(concat('app.min.js'))
 	.pipe(uglify())
 	.pipe(gulp.dest('dist/app'))
+	// .pipe(rev())
+	// .pipe(gulp.dest('dist/app'))
+	// .pipe(rev.manifest('app.manifest.json'))
+	// .pipe(gulp.dest('dist/app'))
 	.pipe(browserSync.stream());
 });
 gulp.task('watch-app', function() {
@@ -185,6 +200,22 @@ gulp.task('watch:serviceWorker', ['serviceWorker'], function(done) {
 	done();
 });
 
+// try rev task
+gulp.task('revision', ['styles', 'app', 'templates'], function() {
+	return gulp.src(['dist/css/**/*.css', 'dist/app/**/*.js', 'dist/app/**/*.html'])
+	.pipe(rev())
+	.pipe(gulp.dest('dist/assets')) // need multiple dests
+	.pipe(rev.manifest())
+	.pipe(gulp.dest('dist/assets'))
+});
+gulp.task('revreplace', ['revision'], function() {
+	var manifest = gulp.src('./' + 'dist/assets' + '/rev.manifest.json');
+
+	return gulp.src('dist' + '/index.html')
+	.pipe(revReplace({manifest: manifest}))
+	.pipe(gulp.dest('dist'));
+});
+
 /**
  * js lint
 */
@@ -195,17 +226,6 @@ gulp.task('lint', function() {
 		.pipe(eslint.failAfterError());
 });
 
-/*
- * watch
-*/
-gulp.task('watch', function() {
-	gulp.watch(['src/assets/sass/**/*.scss'], ['styles']);
-	gulp.watch(['src/app/modules/**/*.html'], ['templates']);
-	gulp.watch(['src/lib/**/*'], ['deps', 'depCss']);
-	gulp.watch(['src/app/**/*.js'], ['app']);
-	gulp.watch(['src/sw.js'], ['serviceWorker']);
-});
-
 // serve
 gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 
@@ -214,7 +234,7 @@ gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 // test 
 
 // build
-gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'serviceWorker', 'build-sync'], function() {
+gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'serviceWorker', 'revreplace', 'build-sync'], function() {
 	gulp.watch(['src/assets/sass/**/*.scss'], ['styles', browserSync.reload]);
 	gulp.watch(['src/app/modules/**/*.html'], ['templates', browserSync.reload]);
 	gulp.watch(['src/lib/**/*'], ['deps', 'depCss', browserSync.reload]);
