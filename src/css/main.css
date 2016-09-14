@@ -14,3 +14,13 @@ li.location-suggestion {
 
 .trip {
   margin-bottom: 10px; }
+
+.update-alert {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50;
+  padding: 10px;
+  background: #fff;
+  z-index: 1000; }

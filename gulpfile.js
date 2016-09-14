@@ -34,8 +34,7 @@ gulp.task('build-sync', function() {
 	browserSync.init({
 		server: {
 			baseDir: './dist'
-		},
-		// https: true
+		}
 	});
 	browserSync.stream();
 });
@@ -172,7 +171,7 @@ gulp.task('templates', function() {
  * app
 */
 gulp.task('app', function() {
-	gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js'])
+	return gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js'])
 	.pipe(concat('app.min.js'))
 	.pipe(uglify())
 	.pipe(gulp.dest('dist/app'))
@@ -236,9 +235,11 @@ gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 // build
 gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'serviceWorker', 'revreplace', 'build-sync'], function() {
 	gulp.watch(['src/assets/sass/**/*.scss'], ['styles', browserSync.reload]);
-	gulp.watch(['src/app/modules/**/*.html'], ['templates', browserSync.reload]);
+	gulp.watch(['src/app/**/*.html'], ['templates', browserSync.reload]);
 	gulp.watch(['src/lib/**/*'], ['deps', 'depCss', browserSync.reload]);
 	gulp.watch(['src/app/**/*.js'], ['app', browserSync.reload]);
 	gulp.watch(['src/sw.js'], ['serviceWorker', browserSync.reload]);
 });
+
+gulp.task('default', ['watch-app', 'build-sync']);
 

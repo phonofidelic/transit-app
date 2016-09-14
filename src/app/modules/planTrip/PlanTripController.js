@@ -79,8 +79,10 @@ angular.module('transitApp')
 
 	vm.updateReady = function(worker) {
 		console.log('updateReady');
+		// show notification that an update is ready
+		
 	};
-
+ 
 	vm.trackInstalling = function(worker) {
 		console.log('trackInstalling');
 	};

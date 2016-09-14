@@ -1,4 +1,4 @@
-var staticCacheName = 'transit-static-v2';
+var staticCacheName = 'transit-static-v3';
 
 self.addEventListener('install', function(event) {
 	event.waitUntil(
@@ -29,7 +29,7 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('fetch', function(event) {
 	if (event.request.url != 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAJa-YCzQ7t6AhlXCj7c-9p1b0QdlWZWG8&libraries=places,geocoder') {
-		console.log('fetch event for: ', event)
+		console.log('fetch event for: ', event.request.url)
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
 
