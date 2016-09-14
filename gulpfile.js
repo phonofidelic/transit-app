@@ -31,9 +31,10 @@ gulp.task('build-sync', function() {
 	browserSync.init({
 		server: {
 			baseDir: './dist'
-		}
+		},
+		// https: true
 	});
-	browserSync.stream();	
+	browserSync.stream();
 });
 
 /**
@@ -56,18 +57,6 @@ gulp.task('clean-dist', function() {
 };
 	deleteFolderRecursive('dist');
 });
-
-
-
-
-gulp.task('test-task', function() {
-	return fs.readdir('src/lib', function(err, files) {
-		console.log('files: ', files);
-		file.forEach(function(file) {
-			return '<script>'
-		})
-	});
-})
 
 /**
  * markup
@@ -121,8 +110,8 @@ gulp.task('depsStandalone', function() {
 */
 gulp.task('assets', function() {
 	gulp.src('src/lib/leaflet-geocoder-mapzen/dist/images/search@2x.png')
-	.pipe(gulp.dest('dist/css/leaflet-geocoder-mapzen/src/images'));
-});
+	.pipe(gulp.dest('dist/leaflet-geocoder-mapzen/src/images'));
+});	
 
 /**
  * styles
@@ -149,7 +138,12 @@ gulp.task('watch-css', function() {
  * depCss
 */
 gulp.task('depCss', function() {
-	gulp.src('src/lib/**/*.css')
+	gulp.src([
+		'src/lib/bootstrap/dist/css/bootstrap.min.css', 
+		'src/lib/leaflet/dist/leaflet.css',
+		'src/lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.css',
+		'src/lib/leaflet.locatecontrol/dist/L.Control.Locate.css'
+	])
 	.pipe(minCss())
 	.pipe(concatCss('deps.min.css'))
 	.pipe(gulp.dest('dist/css'));
@@ -177,6 +171,20 @@ gulp.task('watch-app', function() {
 	gulp.watch('src/app/**/*.js', ['app']);
 });
 
+/*
+ * serviceWorker
+*/
+gulp.task('serviceWorker', function() {
+	return gulp.src('src/sw.js')
+	// .pipe(uglify())
+	.pipe(gulp.dest('dist'))
+	.pipe(browserSync.stream());
+});
+gulp.task('watch:serviceWorker', ['serviceWorker'], function(done) {
+	browserSync.reload();
+	done();
+});
+
 /**
  * js lint
 */
@@ -187,6 +195,17 @@ gulp.task('lint', function() {
 		.pipe(eslint.failAfterError());
 });
 
+/*
+ * watch
+*/
+gulp.task('watch', function() {
+	gulp.watch(['src/assets/sass/**/*.scss'], ['styles']);
+	gulp.watch(['src/app/modules/**/*.html'], ['templates']);
+	gulp.watch(['src/lib/**/*'], ['deps', 'depCss']);
+	gulp.watch(['src/app/**/*.js'], ['app']);
+	gulp.watch(['src/sw.js'], ['serviceWorker']);
+});
+
 // serve
 gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 
@@ -195,4 +214,11 @@ gulp.task('serve', ['watch-html', 'watch-css', 'watch-app', 'dev-sync']);
 // test 
 
 // build
-gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'build-sync']);
+gulp.task('build', ['clean-dist', 'styles', 'depCss', 'deps', 'depsStandalone', 'app', 'templates', 'assets', 'index', 'serviceWorker', 'build-sync'], function() {
+	gulp.watch(['src/assets/sass/**/*.scss'], ['styles', browserSync.reload]);
+	gulp.watch(['src/app/modules/**/*.html'], ['templates', browserSync.reload]);
+	gulp.watch(['src/lib/**/*'], ['deps', 'depCss', browserSync.reload]);
+	gulp.watch(['src/app/**/*.js'], ['app', browserSync.reload]);
+	gulp.watch(['src/sw.js'], ['serviceWorker', browserSync.reload]);
+});
+

@@ -1,4 +1,4 @@
-var staticCacheName = 'transit-static-v1';
+var staticCacheName = 'transit-static-v2';
 
 self.addEventListener('install', function(event) {
 	event.waitUntil(
@@ -28,4 +28,4 @@ self.addEventListener('fetch', function(event) {
 	);
 });
 
-// console.log('hello world');
+// console.log('hello world'); 
