@@ -31,7 +31,7 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-	if (event.request.url != 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAJa-YCzQ7t6AhlXCj7c-9p1b0QdlWZWG8&libraries=places,geocoder') {
+	if (event.request.url.indexOf('https://maps.googleapis.com') == -1) {
 		console.log('fetch event for: ', event.request.url)
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
@@ -53,6 +53,8 @@ self.addEventListener('fetch', function(event) {
 			})
 		);
 	}
+
+	// if (event.request.url.indexOf('https://maps.googleapis.com'))
 });
 
 self.addEventListener('message', function(event) {
