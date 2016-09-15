@@ -54,11 +54,11 @@ self.addEventListener('fetch', function(event) {
 		);
 	}
 
-	// if (event.request.url.indexOf('https://maps.googleapis.com'))
 });
 
 self.addEventListener('message', function(event) {
 	if (event.data.action === 'skipWaiting') {
 		self.skipWaiting();
 	}
-});//
+});
+
