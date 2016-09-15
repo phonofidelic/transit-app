@@ -111,13 +111,13 @@
 		</div>
 	</div>
 
-	<div class="update-alert" ng-show="vm.showToast">
+	<div class="update-alert" ng-if="vm.showToast">
 		<span>An update is ready</span>
 		<span>
-			<button type="button" class="btn btn-default">refresh</button>
+			<button type="button" class="btn btn-default" ng-click="vm.skipWaiting()">refresh</button>
 		</span>
 		<span>
-			<button type="button" class="btn btn-default">dismiss</button>
+			<button type="button" class="btn btn-default" ng-click="vm.showToast = false">dismiss</button>
 		</span>
 	</div>
 

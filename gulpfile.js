@@ -17,6 +17,9 @@ var gulp = require('gulp'),
 	flatten = require('gulp-flatten'),
 	rev = require('gulp-rev'),
 	revReplace = require('gulp-rev-replace'),
+	useref = require('gulp-useref'),
+	filter = require('gulp-filter'),
+	gulpif = require('gulp-if'),
 	gulpSw = require('gulp-serviceworker'),
 	browserSync = require('browser-sync').create();
 
@@ -203,7 +206,9 @@ gulp.task('watch:serviceWorker', ['serviceWorker'], function(done) {
 	done();
 });
 
-// try rev task
+/*
+ * revreplace
+*/
 gulp.task('revision', ['styles', 'app', 'templates'], function() {
 	return gulp.src(['dist/css/**/*.css', 'dist/app/**/*.js', 'dist/app/**/*.html'])
 	.pipe(rev())
@@ -217,6 +222,27 @@ gulp.task('revreplace', ['revision'], function() {
 	return gulp.src('dist' + '/index.html')
 	.pipe(revReplace({manifest: manifest}))
 	.pipe(gulp.dest('dist'));
+});
+
+// test revreplase with useref
+gulp.task('useref-test', function() {
+	var appFilter = filter('src/app/**/*.js'),
+		cssFilter = filter('src/css/main.css'),	// WARNING!!! needs to compile first?
+		libJsFilter = filter(['src/lib/**/*.js', '!src/lib/**/*.min.js']),
+		libCssFilter = filter(['src/lib/**/*.css', '!src/lib/**.*.min.css']),
+		templatesFilter = filter('src/app/templates/**/*.html');
+
+	return gulp.src('src/index.html')
+		.pipe(useref())
+		// app js
+		.pipe(gulpif(appFilter, uglify()))
+		// main css
+		.pipe(gulpif(cssFilter, minCss()))	// WARNING!!! needs to compile here?
+		// lib js
+		.pipe(gulpif(libJsFilter, uglify()))
+		// lib css
+		.pipe(gulpif(libCssFilter, minCss()))
+		.pipe(gulp.dest('dist/public'));
 });
 
 /**

@@ -54,38 +54,47 @@ angular.module('transitApp')
 			}
 
 			if (reg.waiting) {
-				vm.updateReady(reg.waiting);
+				updateReady(reg.waiting);
 				return;
 			}
 
 			if (reg.installing) {
-				vm.trackInstalling(reg.installing);
+				trackInstalling(reg.installing);
 				return;
 			}
 
 			reg.addEventListener('updatefound', function() {
-				vm.trackInstalling(reg.installing);
+				trackInstalling(reg.installing);
 			});
 
+			// *** BUG *** 	not picking up change-event?
 			var refreshing;
 			navigator.serviceWorker.addEventListener('controllerchange', function() {
 				if (refreshing) return;
 				window.location.reload();
 				refreshing = true;
 			});
+			// navigator.serviceWorker.oncontrollerchange = function(event) {
+			// 	window.location.reload();
+			// }
 		}).catch(function(err) {
 			console.log('serviceWorker registration error: ', err);
 		});
 	};
 
-	vm.updateReady = function(worker) {
+	trackInstalling = function(worker) {
+		console.log('trackInstalling');
+	};
+
+	updateReady = function(worker) {
 		console.log('updateReady');
 		// show notification that an update is ready
 		vm.showToast = true;
-	};
- 
-	vm.trackInstalling = function(worker) {
-		console.log('trackInstalling');
+		// TODO: implement refresh/skip waiting functionality
+		return vm.skipWaiting = function() {
+			worker.postMessage({action: 'skipWaiting'});
+			console.log('skip, ', worker);
+		}
 	};
 
 	vm.init = function() {
