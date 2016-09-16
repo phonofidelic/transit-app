@@ -108,12 +108,29 @@ angular.module('transitApp')
 		registerServiceWorker();
 	}
 
+	/************* zip file test *************/
+	vm.readZip = function() {
+		// $http.get('http://www.broward.org/bct/google/latest/google_transit.zip').then(function(zipFile) {
+		// 	JSZipUtils.getBinaryContent('')
+		// });
+
+		JSZipUtils.getBinaryContent('http://www.broward.org/bct/google/latest/google_transit.zip', function(err, data) {
+			if (err) {
+				console.log('JSZip error: ');
+				throw err;
+			}
+			JSZip.loadAsync(data).then(function() {
+				console.log('success!');
+			});
+		});
+	}
+	/************* endtest *******************/
+
 	// GTFS data request
 	vm.gtfsData = function() {
 		var url = 'http://localhost:3000/assets/transitData/stop_times.txt';
 		gtfsParserService.requestData(url).then(function(response) {
 			console.log('GTFSParserService response: ', response);
-			// vm.stopsData = response;
 			return gtfsParserService.toJSON(response);	
 		})
 		.then(function(jsonData) {

@@ -1,4 +1,4 @@
-var staticCacheName = 'transit-static-v3';
+var staticCacheName = 'transit-static-v4';
 
 self.addEventListener('install', function(event) {
 	event.waitUntil(
@@ -33,6 +33,7 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
 	if (event.request.url.indexOf('https://maps.googleapis.com') == -1) {
 		console.log('fetch event for: ', event.request.url)
+
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
 
@@ -48,12 +49,11 @@ self.addEventListener('fetch', function(event) {
 					return response;
 				}).catch(function(err) {
 					console.error('Fetch from network failed: ', err);
-					throw err; 
+					throw err;
 				});
 			})
 		);
 	}
-
 });
 
 self.addEventListener('message', function(event) {

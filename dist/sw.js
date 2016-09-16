@@ -33,6 +33,7 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
 	if (event.request.url.indexOf('https://maps.googleapis.com') == -1) {
 		console.log('fetch event for: ', event.request.url)
+
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
 
@@ -48,7 +49,7 @@ self.addEventListener('fetch', function(event) {
 					return response;
 				}).catch(function(err) {
 					console.error('Fetch from network failed: ', err);
-					throw err; 
+					throw err;
 				});
 			})
 		);

@@ -93,7 +93,7 @@ gulp.task('index', function() {
 
 /**
  * deps
-**/
+**/									// TODO: use gulp-filter for src files
 gulp.task('deps', function() {
 	gulp.src([
 		// 'src/lib/angular/angular.js', 
