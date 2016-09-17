@@ -25,6 +25,17 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 		});
 	};
 
+	GTFSParserService.prototype.toArrays = function(string) {
+		var rows = string.split('\n');
+		var cols = [];
+
+		rows.forEach(function(row) {
+			cols.push(row.split(','));
+		});
+
+		return cols;
+	};
+
 	GTFSParserService.prototype.toJSON = function(gtfsArray) {
 		// Create an array to hold our json objects
 		var json = [];
@@ -114,6 +125,30 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 		console.log('groups: ', groups);
 		return Object.keys(groups).map(function(group) {
 			return groups[group];
+		});
+	};
+
+	GTFSParserService.prototype.readZip = function(url, file) {
+		// var jsZipUtils = new JSZipUtils();
+		var jsZip = new JSZip();
+		return JSZipUtils.getBinaryContent(url, function(err, data) {
+			if (err) {
+				console.log('JSZip error: ');	//reject()
+				throw err;
+			}
+			jsZip.loadAsync(data).then(function(zip) {	//rsolve()
+				console.log('success!: ', zip);
+				// console.log('jsZip.file(): ', jsZip.file(file).async('string'));
+				return jsZip.file(file).async("string");
+				// return zip;
+			})
+			.then(function(string) {
+				// console.log('zip string: ', string);
+				return string;
+			})
+			.catch(function(err) {
+				console.error('readZip error: ', err);
+			});
 		});
 	};
 

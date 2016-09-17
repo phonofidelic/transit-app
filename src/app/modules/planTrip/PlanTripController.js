@@ -16,6 +16,7 @@ angular.module('transitApp')
 	var locationService = new LocationService();
 	var transitService = new TransitLandRequestService();
 	var gtfsParserService = new GTFSParserService();
+	var jsZip = new JSZip();
 
 	var map = L.map('map', {
 		scrollWheelZoom: false
@@ -127,8 +128,14 @@ angular.module('transitApp')
 				console.log('JSZip error: ');
 				throw err;
 			}
-			JSZip.loadAsync(data).then(function(data) {
-				console.log('success!: ', data);
+			jsZip.loadAsync(data).then(function(zip) {
+				console.log('success!: ', zip);
+				return jsZip.file('stops.txt').async('string');
+			}).then(function(string) {
+				console.log('zip string: ', string);
+				return string;
+			}).catch(function(err) {
+				console.error('readZip error: ', err);
 			});
 		});
 	}
@@ -136,21 +143,59 @@ angular.module('transitApp')
 
 	// GTFS data request
 	vm.gtfsData = function() {
-		var url = 'http://localhost:3000/assets/transitData/stop_times.txt';
-		gtfsParserService.requestData(url).then(function(response) {
-			console.log('GTFSParserService response: ', response);
-			return gtfsParserService.toJSON(response);	
-		})
-		.then(function(jsonData) {
-			console.log('jsonData: ', jsonData);
-			result = gtfsParserService.groupBy(jsonData, function(item) {
-				return [item.stop_id];
+		var url = 'assets/transitData/google_transit.zip';
+		var file = 'stops.txt';
+
+		console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
+
+		JSZipUtils.getBinaryContent(url, function(err, data) {
+			if (err) {
+				console.log('JSZip error: ');
+				throw err;
+			}
+			jsZip.loadAsync(data).then(function(zip) {
+				return jsZip.file(file).async('string');
+			}).then(function(string) {
+				return gtfsParserService.toArrays(string);
+			}).then(function(gtsfArray) {
+				return gtfsParserService.toJSON(gtsfArray);
+			}).then(function(gtsfJSON) {
+				console.log('gtsfJSON: ', gtsfJSON);
+			}).catch(function(err) {
+				console.log('readZip error: ', err);
 			});
-			console.log('result: ', result[0]);
-			result[0].forEach(function(item) {
-				console.log(item.departure_time)
-			})
 		});
+
+		// gtfsParserService.readZip(url, 'stops.txt').then(function(string) {
+		// 	return gtfsParserService.toArrays(string);
+		// }).then(function(array) {
+		// 	console.log('grfs array: ', array);
+		// 	return gtfsParserService.toJSON(array);
+		// }).then(function(jsonData) {
+		// 	console.log('jsonData: ', jsonData);
+		// 	result = gtfsParserService.groupBy(jsonData, function(item) {
+		// 		return [item.stop_id];
+		// 	});
+		// 	console.log('result: ', result[0]);
+		// 	result[0].forEach(function(item) {
+		// 		console.log(item.departure_time)
+		// 	});			
+		// });
+
+		// gtfsParserService.requestData(url).then(function(response) {
+		// 	console.log('GTFSParserService response: ', response);
+		// 	return gtfsParserService.toJSON(response);	
+		// })
+		// .then(function(jsonData) {
+		// 	console.log('jsonData: ', jsonData);
+		// 	result = gtfsParserService.groupBy(jsonData, function(item) {
+		// 		return [item.stop_id];
+		// 	});
+		// 	console.log('result: ', result[0]);
+		// 	result[0].forEach(function(item) {
+		// 		console.log(item.departure_time)
+		// 	})
+		// });
 	};
 
 	vm.gtfsToJSON = function() {
