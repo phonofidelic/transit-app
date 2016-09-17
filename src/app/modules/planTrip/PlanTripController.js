@@ -110,17 +110,25 @@ angular.module('transitApp')
 
 	/************* zip file test *************/
 	vm.readZip = function() {
-		// $http.get('http://www.broward.org/bct/google/latest/google_transit.zip').then(function(zipFile) {
-		// 	JSZipUtils.getBinaryContent('')
+		// $http({
+		// 	method: 'GET',
+		// 	url: 'http://www.broward.org/bct/google/latest/google_transit.zip',
+		// 	headers: {
+		// 		'Access-Control-Allow-Origin': 'http://www.broward.org'
+		// 	}
+		// }).then(function(zipFile) {
+		// 	console.log('success!')
+		// }).catch(function(err) {
+		// 	console.log('readZip failed: ', err);
 		// });
 
-		JSZipUtils.getBinaryContent('http://www.broward.org/bct/google/latest/google_transit.zip', function(err, data) {
+		JSZipUtils.getBinaryContent('assets/transitData/google_transit.zip', function(err, data) {
 			if (err) {
 				console.log('JSZip error: ');
 				throw err;
 			}
-			JSZip.loadAsync(data).then(function() {
-				console.log('success!');
+			JSZip.loadAsync(data).then(function(data) {
+				console.log('success!: ', data);
 			});
 		});
 	}

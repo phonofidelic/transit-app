@@ -1,0 +1,123 @@
+<div class="container" ng-init="vm.getCurrentPosition(); vm.init()">
+	<form action="" role="form">
+		<legend>Form title</legend>
+	
+		<div class="form-group">
+			<label for="">departure</label>
+			<input type="text" 
+				   list="departure-suggestions"
+				   class="form-control typeahead" 
+				   id="departure-inp" 
+				   placeholder="Input field"
+				   ng-model="vm.inputData.departure.name"
+				   ng-init="vm.autoAddress('departure-inp')"
+				   ng-blur="vm.getAddress('departure-inp'); departureFocused = false;"
+				   ng-focus="departureFocused = true"
+				   onClick="document.getElementById('departure-inp').select()">
+		</div>
+
+		<div class="form-group">
+			<label for="">arrival</label>
+			<input type="text" 
+				   list="arrival-suggestions"
+				   class="form-control typeahead" 
+				   id="arrival-inp" 
+				   placeholder="Input field"
+				   ng-model="vm.inputData.arrival.name"
+				   ng-init="vm.autoAddress('arrival-inp')"
+				   ng-blur="vm.getAddress('arrival-inp'); arrivalFocused = false;"
+				   ng-focus="departureFocused = true"
+				   onClick="document.getElementById('arrival-inp').select()">
+		</div>
+	</form>
+
+	<div ng-show="vm.tripData">
+		<div ng-repeat="move in vm.tripData.legs[0].maneuvers" class="location-suggestion">
+			<h4 class="strong">{{move.street_names[0]}}</h4>
+			<div class="location-transit" ng-show="move.transit_info">
+				<div><i class="fa fa-bus" aria-hidden="true"></i> onestop_id: {{move.transit_info.onestop_id}}</div>
+				<ul ng-repeat="stop in move.transit_info.transit_stops">
+					<li>{{stop.name}} {{stop.onestop_id}} {{stop.departure_date_time}}</li>
+				</ul>
+			</div>
+			<div class="trip-instruction">{{move.instruction}}</div>
+		</div>
+	</div>
+
+	<div>
+		<button class="btn btn-primary" ng-click="vm.sendRequest(vm.inputData.departureName)">Submit (vm.sendRequest())</button>
+	</div>
+
+	<button type="button" class="btn btn-default" ng-click="vm.transitRequest(vm.currentPosition.countyString); transit = true">vm.transitRequest(vm.currentPosition.countyString) (routesByOperator)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeRequest('r-dhw-110~595esunrise~miami'); route = true">vm.routeRequest('r-dhw-110~595esunrise~miami') (routeByOnestopId)</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routeStopPattern('r-dhxj-60-faba82-89158f')">vm.routeStopPattern('r-dhxj-60-faba82-89158f')</button>
+	<button type="button" class="btn btn-default" ng-click="vm.routesByBbox(vm.currentPosition)">vm.routesByBbox(vm.currentPosition)</button>
+
+	<div class="row" ng-show="route">
+		<div class="col-md-6">
+			<label>route departure</label>
+			<input list="routes-inp" name="" ng-model="vm.inputData.departure.onestop_id">
+			<datalist id="routes-inp">
+				<option ng-repeat="route in vm.routeData[0].stops_served_by_route" 
+						value="{{route.stop_onestop_id}}">
+				</option>
+			</datalist>
+		</div>
+		<div class="col-md-6">
+			<label>route arrival</label>
+			<input list="routes-inp" name="" ng-model="vm.inputData.arrival.onestop_id">
+			<datalist id="routes-inp">
+				<option ng-repeat="route in vm.routeData[0].stops_served_by_route" 
+						value="{{route.onestop_id}}">{{route.name}}
+				</option>
+			</datalist>
+		</div>
+		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button>
+		<!-- <button type="button" class="btn btn-default" ng-click="vm.scheduleStopPairs(vm.inputData.departure.onestop_id)">show trip</button> -->
+	</div>
+
+	<table class="table">
+<!-- 		<tr class="trip" ng-repeat="stopPair in vm.scheduleStopPairs">
+			<td>
+				{{stopPair.trip_headsign}}
+				<ul>
+					<li><strong>departure time:</strong> {{stopPair.origin_departure_time}} </li>
+					<li><strong>arrival time:</strong> {{stopPair.destination_arrival_time}}</li>
+				</ul>
+			</td>
+		</tr> -->
+	</table>
+
+	<div>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">vm.gtfsData()</button>
+		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">vm.gtfsParserService.toJSON(vm.stopsData)</button>
+		<table class="table">
+			<tr ng-repeat="row in vm.stopsData track by $index">
+				<td ng-repeat="cell in row track by $index">{{cell}}</td>
+			</tr>
+		</table>
+	</div>
+
+	<button type="button" class="btn btn-default" ng-click="vm.readZip()">read zip</button>
+
+<!-- 	<div class="row">
+		<div class="col-sm-12" ng-repeat="route in vm.routeData">{{route.name}}</div>
+	</div> -->
+	
+	<div class="row">
+		<div class="col-sm-12 map-container">
+			<div id="map" ng-init="vm.initMap()"></div>
+		</div>
+	</div>
+
+	<div class="update-alert" ng-if="vm.showToast">
+		<span>An update is ready</span>
+		<span>
+			<button type="button" class="btn btn-default" ng-click="vm.skipWaiting()">refresh</button>
+		</span>
+		<span>
+			<button type="button" class="btn btn-default" ng-click="vm.showToast = false">dismiss</button>
+		</span>
+	</div>
+
+</div>

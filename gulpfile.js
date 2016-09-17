@@ -103,6 +103,8 @@ gulp.task('deps', function() {
 			  'src/lib/leaflet/dist/leaflet.js', 
 			  'src/lib/leaflet-geocoder-mapzen/src/leaflet-geocoder-mapzen.js', 
 			  'src/lib/indexeddb-promised/lib/idb.js',
+			  'src/lib/jszip/dist/jszip.js',
+			  'src/lib/jszip-utils/dist/jszip-utils.js',
 			  'src/lib/**/*.min.js',])
 	.pipe(flatten())
 	.pipe(concat('deps.min.js'))
@@ -118,8 +120,10 @@ gulp.task('depsStandalone', function() {
  * assets
 */
 gulp.task('assets', function() {
-	gulp.src('src/lib/leaflet-geocoder-mapzen/dist/images/search@2x.png')
-	.pipe(gulp.dest('dist/leaflet-geocoder-mapzen/src/images'));
+	// gulp.src('src/lib/leaflet-geocoder-mapzen/dist/images/search@2x.png')
+	// .pipe(gulp.dest('dist/leaflet-geocoder-mapzen/src/images'));
+	gulp.src('src/assets/transitData/*.zip')
+	.pipe(gulp.dest('dist/assets/transitData'));
 });	
 
 /**
