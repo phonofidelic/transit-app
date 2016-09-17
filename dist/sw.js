@@ -4,16 +4,16 @@ self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
 			return cache.addAll([
-				'index.html',
-				'css/main.min.css',
-				'app/app.min.js',
-				'lib/deps.min.js',
-				'css/deps.min.css',
-				'app/templates/planTrip.html'
+				// 'index.html',
+				// 'css/main.min.css',
+				// 'app/app.min.js',
+				// 'lib/deps.min.js',
+				// 'css/deps.min.css',
+				// 'app/templates/planTrip.html'
 			]);
 		})
 	);
-});//
+});
 
 self.addEventListener('activate', function(event) {
 	event.waitUntil(

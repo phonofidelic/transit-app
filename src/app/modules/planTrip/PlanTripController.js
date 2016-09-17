@@ -30,7 +30,7 @@ angular.module('transitApp')
 	vm.inputData.arrival = {};
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
-	// vm.showToast = false;
+	vm.dbPromise = openDatabase();
 
 	function openDatabase() {
 		if (!navigator.serviceWorker) {
@@ -83,6 +83,19 @@ angular.module('transitApp')
 		});
 	};
 
+	function getStoredData() {
+		return vm.dbPromise.then(function(db) {
+			if (!db /* || this.someView.showingSomething() */) return;
+
+			var index = db.transaction('stops')
+			.objectStore('stops').index('by-id');
+
+			return index.getAll().then(function(stops) {
+				console.log('from idb: ', stops);
+			});
+		});
+	};
+
 	function trackInstalling(worker) {
 		console.log('trackInstalling');
 		worker.addEventListener('statechange', function() {
@@ -104,10 +117,48 @@ angular.module('transitApp')
 		}
 	};
 
+	function openSocket() {
+		// var socketUrl = new URL('/updates', window.location);
+		// socketUrl.protocol = 'ws';
+
+		// var ws = new WebSocket(socketUrl.href);
+
+		// ws.addEventListener('message', function(event) {
+		// 	requestAnimationFrame(function() {
+		// 		onSocketMessage(event.data);
+		// 	});
+		// });
+	};
+
+	function populateDb() {
+		// var transitData = vm.gtfsData();
+		var bajs = vm.gtfsData();
+		console.log('bajs: ', bajs);
+
+
+		vm.gtfsData().then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var tx = db.transaction('stops', 'readwrite');
+				var store = tx.objectStore('stops');
+				transitData.forEach(function(item) {
+					store.put(item);
+				});
+			});
+		});
+
+	};
+
 	vm.init = function() {
-		openDatabase();
+		populateDb();
+		// openDatabase();
 		registerServiceWorker();
-	}
+
+		// getStoredData().then(function() {
+		// 	openSocket();
+		// });
+	};
 
 	/************* zip file test *************/
 	vm.readZip = function() {
@@ -146,56 +197,30 @@ angular.module('transitApp')
 		var url = 'assets/transitData/google_transit.zip';
 		var file = 'stops.txt';
 
-		console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
+		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
 
-		JSZipUtils.getBinaryContent(url, function(err, data) {
-			if (err) {
-				console.log('JSZip error: ');
-				throw err;
-			}
-			jsZip.loadAsync(data).then(function(zip) {
-				return jsZip.file(file).async('string');
-			}).then(function(string) {
-				return gtfsParserService.toArrays(string);
-			}).then(function(gtsfArray) {
-				return gtfsParserService.toJSON(gtsfArray);
-			}).then(function(gtsfJSON) {
-				console.log('gtsfJSON: ', gtsfJSON);
-			}).catch(function(err) {
-				console.log('readZip error: ', err);
+		return new Promise(function(resolve) {
+
+
+			JSZipUtils.getBinaryContent(url, function(err, data) {
+				if (err) {
+					console.log('JSZip error: ');
+					throw err;
+				}
+				jsZip.loadAsync(data).then(function(zip) {
+					return jsZip.file(file).async('string');
+				}).then(function(string) {
+					return gtfsParserService.toArrays(string);
+				}).then(function(gtsfArray) {
+					return gtfsParserService.toJSON(gtsfArray);
+				}).then(function(gtsfJSON) {
+					console.log('gtsfJSON: ', gtsfJSON);
+					resolve(gtsfJSON);
+				}).catch(function(err) {
+					console.log('readZip error: ', err);
+				});
 			});
 		});
-
-		// gtfsParserService.readZip(url, 'stops.txt').then(function(string) {
-		// 	return gtfsParserService.toArrays(string);
-		// }).then(function(array) {
-		// 	console.log('grfs array: ', array);
-		// 	return gtfsParserService.toJSON(array);
-		// }).then(function(jsonData) {
-		// 	console.log('jsonData: ', jsonData);
-		// 	result = gtfsParserService.groupBy(jsonData, function(item) {
-		// 		return [item.stop_id];
-		// 	});
-		// 	console.log('result: ', result[0]);
-		// 	result[0].forEach(function(item) {
-		// 		console.log(item.departure_time)
-		// 	});			
-		// });
-
-		// gtfsParserService.requestData(url).then(function(response) {
-		// 	console.log('GTFSParserService response: ', response);
-		// 	return gtfsParserService.toJSON(response);	
-		// })
-		// .then(function(jsonData) {
-		// 	console.log('jsonData: ', jsonData);
-		// 	result = gtfsParserService.groupBy(jsonData, function(item) {
-		// 		return [item.stop_id];
-		// 	});
-		// 	console.log('result: ', result[0]);
-		// 	result[0].forEach(function(item) {
-		// 		console.log(item.departure_time)
-		// 	})
-		// });
 	};
 
 	vm.gtfsToJSON = function() {
