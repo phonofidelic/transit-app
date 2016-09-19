@@ -4,15 +4,15 @@ self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
 			return cache.addAll([
-				'/',
-				'css/main.min.css',
-				'app/app.min.js',
-				'lib/deps.min.js',
-				'css/deps.min.css',
-				'app/templates/planTrip.html'
+				// '/',
+				// 'css/main.min.css',
+				// 'app/app.min.js',
+				// 'lib/deps.min.js',
+				// 'css/deps.min.css',
+				// 'app/templates/planTrip.html'
 			]);
 		})
-	);
+	);//
 });
 
 self.addEventListener('activate', function(event) {
@@ -37,12 +37,12 @@ self.addEventListener('fetch', function(event) {
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
 
-		if (requestUrl.origin === location.origin) {
-			if (requestUrl.pathname === '/') {
-				event.respondWith(caches.match('/'));
-				return;
-			}
-		}
+		// if (requestUrl.origin === location.origin) {
+		// 	if (requestUrl.pathname === '/') {
+		// 		event.respondWith(caches.match('/'));
+		// 		return;
+		// 	}
+		// }
 
 		event.respondWith(
 			caches.match(event.request).then(function(response) {

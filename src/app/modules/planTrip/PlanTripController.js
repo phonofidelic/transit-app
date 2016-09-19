@@ -37,11 +37,22 @@ angular.module('transitApp')
 			return Promise.resolve();
 		}
 		console.log('initiating database');
-		return idb.open('gtfsData', 1, function(upgradeDb) {
-			var store = upgradeDb.createObjectStore('stops', {
-				keyPath: 'stop_id'
-			});
-			store.createIndex('by-id', 'stop_id');
+		return idb.open('gtfsData', 3, function(upgradeDb) {
+			switch (upgradeDb.oldVersion) {
+				case 0: 
+					var stopsStore = upgradeDb.createObjectStore('stops');
+					stopsStore.createIndex('by-id', 'stop_id');
+				case 1:
+					var tripsStore = upgradeDb.createObjectStore('trips');
+					tripsStore.createIndex('by-id', 'trip_id');
+				case 2: 
+					var stopTimesStore = upgradeDb.createObjectStore('stop_times');			
+					stopTimesStore.createIndex('by-id', 'stop_id');
+			}
+			// var stopsStore = upgradeDb.createObjectStore('stops', {
+			// 	keyPath: 'stop_id'
+			// });
+			// stopsStore.createIndex('by-id', 'stop_id');
 		});
 	};
 
@@ -117,25 +128,7 @@ angular.module('transitApp')
 		}
 	};
 
-	function openSocket() {
-		// var socketUrl = new URL('/updates', window.location);
-		// socketUrl.protocol = 'ws';
-
-		// var ws = new WebSocket(socketUrl.href);
-
-		// ws.addEventListener('message', function(event) {
-		// 	requestAnimationFrame(function() {
-		// 		onSocketMessage(event.data);
-		// 	});
-		// });
-	};
-
 	function populateDb() {
-		// var transitData = vm.gtfsData();
-		var bajs = vm.gtfsData();
-		console.log('bajs: ', bajs);
-
-
 		vm.gtfsData().then(function(transitData) {
 			vm.dbPromise.then(function(db) {
 				if (!db) return;
@@ -143,54 +136,21 @@ angular.module('transitApp')
 				var tx = db.transaction('stops', 'readwrite');
 				var store = tx.objectStore('stops');
 				transitData.forEach(function(item) {
-					store.put(item);
+					store.put(item, item.stop_id);
 				});
 			});
 		});
-
 	};
 
 	vm.init = function() {
-		populateDb();
 		// openDatabase();
+		populateDb();
 		registerServiceWorker();
-
-		// getStoredData().then(function() {
-		// 	openSocket();
-		// });
 	};
 
-	/************* zip file test *************/
-	vm.readZip = function() {
-		// $http({
-		// 	method: 'GET',
-		// 	url: 'http://www.broward.org/bct/google/latest/google_transit.zip',
-		// 	headers: {
-		// 		'Access-Control-Allow-Origin': 'http://www.broward.org'
-		// 	}
-		// }).then(function(zipFile) {
-		// 	console.log('success!')
-		// }).catch(function(err) {
-		// 	console.log('readZip failed: ', err);
-		// });
+	vm.deleteObjectStore = function(objectStore) {
 
-		JSZipUtils.getBinaryContent('assets/transitData/google_transit.zip', function(err, data) {
-			if (err) {
-				console.log('JSZip error: ');
-				throw err;
-			}
-			jsZip.loadAsync(data).then(function(zip) {
-				console.log('success!: ', zip);
-				return jsZip.file('stops.txt').async('string');
-			}).then(function(string) {
-				console.log('zip string: ', string);
-				return string;
-			}).catch(function(err) {
-				console.error('readZip error: ', err);
-			});
-		});
 	}
-	/************* endtest *******************/
 
 	// GTFS data request
 	vm.gtfsData = function() {
