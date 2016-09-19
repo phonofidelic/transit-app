@@ -37,16 +37,22 @@ angular.module('transitApp')
 			return Promise.resolve();
 		}
 		console.log('initiating database');
-		return idb.open('gtfsData', 3, function(upgradeDb) {
+		return idb.open('gtfsData', 4, function(upgradeDb) {
 			switch (upgradeDb.oldVersion) {
 				case 0: 
-					var stopsStore = upgradeDb.createObjectStore('stops');
+					var stopsStore = upgradeDb.createObjectStore('stops', {
+						keyPath: 'stop_id'
+					});
 					stopsStore.createIndex('by-id', 'stop_id');
 				case 1:
-					var tripsStore = upgradeDb.createObjectStore('trips');
+					var tripsStore = upgradeDb.createObjectStore('trips', {
+						keyPath: 'trip_id'
+					});
 					tripsStore.createIndex('by-id', 'trip_id');
 				case 2: 
-					var stopTimesStore = upgradeDb.createObjectStore('stop_times');			
+					var stopTimesStore = upgradeDb.createObjectStore('stop_times', {
+						keyPath: 'stop_id'
+					});
 					stopTimesStore.createIndex('by-id', 'stop_id');
 			}
 			// var stopsStore = upgradeDb.createObjectStore('stops', {
@@ -129,12 +135,39 @@ angular.module('transitApp')
 	};
 
 	function populateDb() {
-		vm.gtfsData().then(function(transitData) {
+		// populate db with stops
+		vm.gtfsData('stops.txt').then(function(transitData) {
 			vm.dbPromise.then(function(db) {
 				if (!db) return;
 
-				var tx = db.transaction('stops', 'readwrite');
-				var store = tx.objectStore('stops');
+				var txStops = db.transaction('stops', 'readwrite');
+				var store = txStops.objectStore('stops');
+				transitData.forEach(function(item) {
+					store.put(item, item.stop_id);
+				});
+			});
+		});
+
+		//populate db with trips
+		vm.gtfsData('trips.txt').then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var txTrips = db.transaction('trips', 'readwrite');
+				var store = txTrips.objectStore('trips');
+				transitData.forEach(function(item) {
+					store.put(item, item.trip_id);
+				});
+			});
+		});
+
+		//populate db with stop-times
+		vm.gtfsData('stop_times.txt').then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var txTrips = db.transaction('stop_times', 'readwrite');
+				var store = txTrips.objectStore('stop_times');
 				transitData.forEach(function(item) {
 					store.put(item, item.stop_id);
 				});
@@ -153,9 +186,9 @@ angular.module('transitApp')
 	}
 
 	// GTFS data request
-	vm.gtfsData = function() {
+	vm.gtfsData = function(file) {
 		var url = 'assets/transitData/google_transit.zip';
-		var file = 'stops.txt';
+		var file = file;
 
 		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
 
