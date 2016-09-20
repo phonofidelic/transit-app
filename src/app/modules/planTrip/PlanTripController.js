@@ -19,7 +19,7 @@ angular.module('transitApp')
 	var jsZip = new JSZip();
 
 	var map = L.map('map', {
-		scrollWheelZoom: false,
+		scrollWheelZoom: false
 		// zoom: 1
 	});
 
@@ -383,19 +383,20 @@ angular.module('transitApp')
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
-			map.setView([position.coords.latitude, position.coords.longitude], 10);
+			map.setView([position.coords.latitude, position.coords.longitude], 14);
 
-			// create bounding boxs area to illustrate routesByBbox search area
-			var latLangs = [];
-			var swLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude - 0.05),
-				nwLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude + 0.05),
-				neLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude + 0.05),
-				seLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude - 0.05);
+			// // create bounding boxs area to illustrate routesByBbox search area
+			// var latLangs = [];
+			// var swLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude - 0.05),
+			// 	nwLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude + 0.05),
+			// 	neLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude + 0.05),
+			// 	seLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude - 0.05);
 
-			latLangs.push(swLatlng, nwLatlng, neLatlng, seLatlng, swLatlng);
+			// latLangs.push(swLatlng, nwLatlng, neLatlng, seLatlng, swLatlng);
 
-			var boundsLine = L.polyline(latLangs, {color: 'red', fill: 'green'}).addTo(map);
-			map.fitBounds(boundsLine.getBounds());
+			// var boundsLine = L.polyline(latLangs, {color: 'red', fill: 'green'}).addTo(map);
+			// // map.fitBounds(boundsLine.getBounds());
+
 			return position;
 		})
 		// .then(function(position) {
@@ -436,10 +437,10 @@ angular.module('transitApp')
 			https://github.com/domoritz/leaflet-locatecontrol
 		 */
 		var lc = L.control.locate({
-			position: 'topleft'
-			// keepCurrentZoomLevel: true
+			position: 'topleft',
+			keepCurrentZoomLevel: true
 		}).addTo(map);
-		// lc.start();
+		lc.start();
 
 		$log.log('init map');
 		return map;
@@ -452,6 +453,10 @@ angular.module('transitApp')
 					return route;
 				}
 			});
+
+			vm.routes = response.routes;
+			console.log('*** vm.routes: ', vm.routes);
+			
 			return localRoutes.forEach(function(route) {
 					
 				var routeColor = route.color;
