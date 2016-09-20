@@ -20,7 +20,7 @@ angular.module('transitApp')
 
 	var map = L.map('map', {
 		scrollWheelZoom: false,
-		zoom: 10
+		// zoom: 1
 	});
 
 	vm.gtfsParserService = new GTFSParserService();
@@ -383,7 +383,7 @@ angular.module('transitApp')
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
-			map.setView([position.coords.latitude, position.coords.longitude], 19);
+			map.setView([position.coords.latitude, position.coords.longitude], 10);
 
 			// create bounding boxs area to illustrate routesByBbox search area
 			var latLangs = [];
@@ -439,7 +439,7 @@ angular.module('transitApp')
 			position: 'topleft'
 			// keepCurrentZoomLevel: true
 		}).addTo(map);
-		lc.start();
+		// lc.start();
 
 		$log.log('init map');
 		return map;
@@ -447,7 +447,12 @@ angular.module('transitApp')
 
 	vm.routesByBbox = function(coords) {
 		transitService.routesByBbox(coords).then(function(response) {
-			return response.routes.forEach(function(route) {
+			var localRoutes = response.routes.filter(function(route) {
+				if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {
+					return route;
+				}
+			});
+			return localRoutes.forEach(function(route) {
 					
 				var routeColor = route.color;
 				var lines = route.geometry.coordinates;
@@ -459,7 +464,7 @@ angular.module('transitApp')
 					});
 					// add line to map
 					var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
-					map.fitBounds(routeLine.getBounds());
+					// map.fitBounds(routeLine.getBounds());
 				});				
 			});
 		});

@@ -55,7 +55,7 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 			// var url = 'http://transit.land/api/v1/routes?operatedBy=o-dhw-browardcountytransit';
 
 			return $http.get(url).then(function(response) {
-				// console.log('bbox response: ', response);
+				console.log('bbox response: ', response);
 				resolve(response.data);
 			});
 		});
