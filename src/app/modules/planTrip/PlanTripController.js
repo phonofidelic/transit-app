@@ -447,10 +447,8 @@ angular.module('transitApp')
 
 	vm.routesByBbox = function(coords) {
 		transitService.routesByBbox(coords).then(function(response) {
-			console.log('it worked! ', response)
-
 			return response.routes.forEach(function(route) {
-				
+					
 				var routeColor = route.color;
 				var lines = route.geometry.coordinates;
 
@@ -461,8 +459,6 @@ angular.module('transitApp')
 					});
 					// add line to map
 					var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
-					console.log(' *** routeColor: ', routeColor);
-					console.log('*** latLngs: ', latLngs);
 					map.fitBounds(routeLine.getBounds());
 				});				
 			});
