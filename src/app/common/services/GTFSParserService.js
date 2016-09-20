@@ -129,7 +129,6 @@ angular.module('transitApp').factory('GTFSParserService', ['$http', function($ht
 	};
 
 	GTFSParserService.prototype.readZip = function(url, file) {
-		// var jsZipUtils = new JSZipUtils();
 		var jsZip = new JSZip();
 		return JSZipUtils.getBinaryContent(url, function(err, data) {
 			if (err) {

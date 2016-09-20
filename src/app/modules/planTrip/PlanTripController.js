@@ -19,7 +19,8 @@ angular.module('transitApp')
 	var jsZip = new JSZip();
 
 	var map = L.map('map', {
-		scrollWheelZoom: false
+		scrollWheelZoom: false,
+		zoom: 10
 	});
 
 	vm.gtfsParserService = new GTFSParserService();
@@ -134,6 +135,8 @@ angular.module('transitApp')
 		}
 	};
 
+	// TODO: make populateDb only store data for selected 
+	// endpoints to cut down on load time.
 	function populateDb() {
 		// populate db with stops
 		vm.gtfsData('stops.txt').then(function(transitData) {
@@ -177,7 +180,7 @@ angular.module('transitApp')
 
 	vm.init = function() {
 		// openDatabase();
-		populateDb();
+		// populateDb();
 		registerServiceWorker();
 	};
 
@@ -213,12 +216,6 @@ angular.module('transitApp')
 					console.log('readZip error: ', err);
 				});
 			});
-		});
-	};
-
-	vm.gtfsToJSON = function() {
-		$.get('http://localhost:3000/assets/transitData/calendar.txt', function(data) {
-			console.log('toJSON: ', data);
 		});
 	};
 
@@ -369,10 +366,6 @@ angular.module('transitApp')
 		});
 	};
 
-	function addMarker(coords) {
-		return L.marker(coords).addTo(map);
-	};
-
 	vm.initMap = function() {
 		
 		// // Leaflet map
@@ -384,13 +377,13 @@ angular.module('transitApp')
 		// Tangram map
 		var layer = Tangram.leafletLayer({
 	  		scene: 'https://raw.githubusercontent.com/tangrams/refill-style-more-labels/gh-pages/refill-style-more-labels.yaml',
-	  		attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | <a href="http://www.openstreetmap.org/about" target="_blank">&copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+	  		attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | <a href="http://www.openstreetmap.org/about" target="_blank">&copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>'
 		});
 		layer.addTo(map);
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
-			map.setView([position.coords.latitude, position.coords.longitude], 14);
+			map.setView([position.coords.latitude, position.coords.longitude], 19);
 
 			// create bounding boxs area to illustrate routesByBbox search area
 			var latLangs = [];
@@ -403,19 +396,48 @@ angular.module('transitApp')
 
 			var boundsLine = L.polyline(latLangs, {color: 'red', fill: 'green'}).addTo(map);
 			map.fitBounds(boundsLine.getBounds());
-
-		}).catch(function(e) {
+			return position;
+		})
+		// .then(function(position) {
+		// 	$timeout(vm.routesByBbox(vm.currentPosition), 500);
+		// })
+		.catch(function(e) {
 			console.log('getPosition error: ', e);
 		});	
 
-		var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
+		// add stop markers
+		// vm.gtfsData('stops.txt').then(function(stops) {
+		// 	var stopCoords = [];
+		// 	var latLngs = [];
+		// 	stops.forEach(function(stop){
+		// 		// console.log('stop: ', stop.stop_lat)
+		// 		if (stop.stop_lat && stop.stop_lon) {
+		// 			var latlng = L.latLng(stop.stop_lat, stop.stop_lon);	
+		// 		}				
+		// 		latLngs.push(latlng);
+		// 	});
+		// 	console.log('latLngs: ', latLngs)
+		// 	return latLngs;
+		// }).then(function(latLngs) {
+			
+		// 	latLngs.forEach(function(latLng) {
+		// 		L.marker(latLng).addTo(map)
+		// 	});
+		// });
+
+		// add route line
+		// var routeLine = L.polyline()
+
+
+
+		// var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
 
 		/* Leaflet.Locate
 			https://github.com/domoritz/leaflet-locatecontrol
 		 */
 		var lc = L.control.locate({
-			position: 'topleft',
-			keepCurrentZoomLevel: true
+			position: 'topleft'
+			// keepCurrentZoomLevel: true
 		}).addTo(map);
 		lc.start();
 
@@ -424,7 +446,27 @@ angular.module('transitApp')
 	};
 
 	vm.routesByBbox = function(coords) {
-		transitService.routesByBbox(coords);
+		transitService.routesByBbox(coords).then(function(response) {
+			console.log('it worked! ', response)
+
+			return response.routes.forEach(function(route) {
+				
+				var routeColor = route.color;
+				var lines = route.geometry.coordinates;
+
+				lines.forEach(function(line) {
+					var latLngs = [];
+					line.forEach(function(coord) {
+						latLngs.push(L.latLng(coord[1], coord[0]));
+					});
+					// add line to map
+					var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
+					console.log(' *** routeColor: ', routeColor);
+					console.log('*** latLngs: ', latLngs);
+					map.fitBounds(routeLine.getBounds());
+				});				
+			});
+		});
 	};
-	// test git-config
+
 }]);

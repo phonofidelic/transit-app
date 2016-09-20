@@ -46,15 +46,18 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 	};
 
 	TransitLandRequestService.prototype.routesByBbox = function(coords) {
-		var swLat = coords.lat + 0.05,
-			swLon = coords.lon - 0.05,
-			neLat = coords.lat -0.05,
-			neLon = coords.lon + 0.05;
-		var url = 'https://transit.land/api/v1/routes?bbox=' + swLon +','+ swLat +','+ neLon +','+ neLat;
+		return new Promise(function(resolve){
+			var swLat = coords.lat + 0.05,
+				swLon = coords.lon - 0.05,
+				neLat = coords.lat -0.05,
+				neLon = coords.lon + 0.05;
+			var url = 'https://transit.land/api/v1/routes?bbox=' + swLon +','+ swLat +','+ neLon +','+ neLat;
+			// var url = 'http://transit.land/api/v1/routes?operatedBy=o-dhw-browardcountytransit';
 
-		$http.get(url).then(function(response) {
-			console.log('bbox response: ', response);
-			// 
+			return $http.get(url).then(function(response) {
+				// console.log('bbox response: ', response);
+				resolve(response.data);
+			});
 		});
 	};
 
