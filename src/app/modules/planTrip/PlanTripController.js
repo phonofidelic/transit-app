@@ -412,6 +412,9 @@ angular.module('transitApp')
 				});
 
 				vm.routes = response.routes;
+				// updates view to with routes data
+				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
+				$scope.$apply();
 				console.log('*** vm.routes: ', vm.routes);
 				
 				return localRoutes.forEach(function(route) {

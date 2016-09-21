@@ -88,7 +88,7 @@
 		</tr> -->
 	</table>
 
-	<div>
+<!-- 	<div>
 		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">vm.gtfsData()</button>
 		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">vm.gtfsParserService.toJSON(vm.stopsData)</button>
 		<table class="table">
@@ -96,11 +96,18 @@
 				<td ng-repeat="cell in row track by $index">{{cell}}</td>
 			</tr>
 		</table>
+	</div> -->
+
+	<div>
+		<select ng-model="vm.selectedRoute">
+			<option>Select a route</option>
+			<option ng-repeat="route in vm.routes" value="{{route.name}}">{{route.name}}</option>
+		</select>
 	</div>
 
-	<div class="row">
+<!-- 	<div class="row">
 		<div class="col-sm-12" ng-repeat="route in vm.routes">{{route.name}}</div>
-	</div>
+	</div> -->
 	
 	<div class="row">
 		<div class="col-sm-12 map-container">

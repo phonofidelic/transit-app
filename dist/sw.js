@@ -12,7 +12,7 @@ self.addEventListener('install', function(event) {
 				'app/templates/planTrip.html'
 			]);
 		})
-	);
+	);//
 });
 
 self.addEventListener('activate', function(event) {
@@ -37,12 +37,12 @@ self.addEventListener('fetch', function(event) {
 		var requestUrl = new URL(event.request.url);
 		console.log('requestUrl: ', requestUrl);
 
-		if (requestUrl.origin === location.origin) {
-			if (requestUrl.pathname === '/') {
-				event.respondWith(caches.match('/'));
-				return;
-			}
-		}
+		// if (requestUrl.origin === location.origin) {
+		// 	if (requestUrl.pathname === '/') {
+		// 		event.respondWith(caches.match('/'));
+		// 		return;
+		// 	}
+		// }
 
 		event.respondWith(
 			caches.match(event.request).then(function(response) {
