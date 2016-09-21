@@ -398,11 +398,39 @@ angular.module('transitApp')
 			// // map.fitBounds(boundsLine.getBounds());
 
 			return position;
-		})
-		// .then(function(position) {
-		// 	$timeout(vm.routesByBbox(vm.currentPosition), 500);
-		// })
-		.catch(function(e) {
+		}).then(function(position) {
+			console.log('*** position: ', position);
+			var coords = {
+				lat: position.coords.latitude,
+				lon: position.coords.longitude
+			}
+			transitService.routesByBbox(coords).then(function(response) {
+				var localRoutes = response.routes.filter(function(route) {
+					if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {
+						return route;
+					}
+				});
+
+				vm.routes = response.routes;
+				console.log('*** vm.routes: ', vm.routes);
+				
+				return localRoutes.forEach(function(route) {
+						
+					var routeColor = route.color;
+					var lines = route.geometry.coordinates;
+
+					lines.forEach(function(line) {
+						var latLngs = [];
+						line.forEach(function(coord) {
+							latLngs.push(L.latLng(coord[1], coord[0]));
+						});
+						// add line to map
+						var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
+						// map.fitBounds(routeLine.getBounds());
+					});				
+				});
+			});
+		}).catch(function(e) {
 			console.log('getPosition error: ', e);
 		});	
 
