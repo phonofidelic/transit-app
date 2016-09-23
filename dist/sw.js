@@ -12,9 +12,9 @@ self.addEventListener('install', function(event) {
 				'app/templates/planTrip.html'
 			]);
 		})
-	);//
+	);
 });
-
+//
 self.addEventListener('activate', function(event) {
 	event.waitUntil(
 		caches.keys().then(function(cacheNames) {

@@ -38,7 +38,7 @@ angular.module('transitApp')
 			return Promise.resolve();
 		}
 		console.log('initiating database');
-		return idb.open('gtfsData', 4, function(upgradeDb) {
+		return idb.open('gtfsData', 7, function(upgradeDb) {
 			switch (upgradeDb.oldVersion) {
 				case 0: 
 					var stopsStore = upgradeDb.createObjectStore('stops', {
@@ -55,6 +55,11 @@ angular.module('transitApp')
 						keyPath: 'stop_id'
 					});
 					stopTimesStore.createIndex('by-id', 'stop_id');
+				case 3:
+					var routesStore = upgradeDb.createObjectStore('routes', {
+						keyPath: 'route_id'
+					});
+					routesStore.createIndex('by-id', 'route_id');
 			}
 			// var stopsStore = upgradeDb.createObjectStore('stops', {
 			// 	keyPath: 'stop_id'
@@ -173,6 +178,19 @@ angular.module('transitApp')
 				var store = txTrips.objectStore('stop_times');
 				transitData.forEach(function(item) {
 					store.put(item, item.stop_id);
+				});
+			});
+		});
+
+		//populate db with routes
+		vm.gtfsData('routes.txt').then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var txTrips = db.transaction('routes', 'readwrite');
+				var store = txTrips.objectStore('routes');
+				transitData.forEach(function(item) {
+					store.put(item, item.route_id);
 				});
 			});
 		});
@@ -417,7 +435,7 @@ angular.module('transitApp')
 				$scope.$apply();
 				console.log('*** vm.routes: ', vm.routes);
 				
-				return localRoutes.forEach(function(route) {
+				localRoutes.forEach(function(route) {
 						
 					var routeColor = route.color;
 					var lines = route.geometry.coordinates;
@@ -431,6 +449,31 @@ angular.module('transitApp')
 						var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
 						// map.fitBounds(routeLine.getBounds());
 					});				
+				});
+			}).then(function() {
+				//populate db with routes
+				vm.gtfsData('routes.txt').then(function(transitData) {
+					vm.dbPromise.then(function(db) {
+						if (!db) return;
+
+						var selectedRoutes = [];
+
+						vm.routes.forEach(function(item) {
+							transitData.forEach(function(item2) {
+								if (item.name === item2.route_short_name) {
+									selectedRoutes.push(item2);
+								}
+							});
+						})
+
+						console.log('*** selectedRoutes: ', selectedRoutes)
+			
+						var tx = db.transaction('routes', 'readwrite');
+						var store = tx.objectStore('routes');
+						selectedRoutes.forEach(function(item) {
+							store.put(item);
+						});
+					});
 				});
 			});
 		}).catch(function(e) {
@@ -487,8 +530,8 @@ angular.module('transitApp')
 
 			vm.routes = response.routes;
 			console.log('*** vm.routes: ', vm.routes);
-			
-			return localRoutes.forEach(function(route) {
+			console.log('### testing ###')
+			localRoutes.forEach(function(route) {
 					
 				var routeColor = route.color;
 				var lines = route.geometry.coordinates;
@@ -501,8 +544,10 @@ angular.module('transitApp')
 					// add line to map
 					var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
 					// map.fitBounds(routeLine.getBounds());
-				});				
+				});		
 			});
+		}).catch(function(err) {
+			console.log('Routes setup errpr: ', err);
 		});
 	};
 
