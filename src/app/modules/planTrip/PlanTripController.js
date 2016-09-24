@@ -144,7 +144,7 @@ angular.module('transitApp')
 	// endpoints to cut down on load time.
 	function populateDb() {
 		// populate db with stops
-		vm.gtfsData('stops.txt').then(function(transitData) {
+		gtfsData('stops.txt').then(function(transitData) {
 			vm.dbPromise.then(function(db) {
 				if (!db) return;
 
@@ -157,7 +157,7 @@ angular.module('transitApp')
 		});
 
 		//populate db with trips
-		vm.gtfsData('trips.txt').then(function(transitData) {
+		gtfsData('trips.txt').then(function(transitData) {
 			vm.dbPromise.then(function(db) {
 				if (!db) return;
 
@@ -170,7 +170,7 @@ angular.module('transitApp')
 		});
 
 		//populate db with stop-times
-		vm.gtfsData('stop_times.txt').then(function(transitData) {
+		gtfsData('stop_times.txt').then(function(transitData) {
 			vm.dbPromise.then(function(db) {
 				if (!db) return;
 
@@ -178,19 +178,6 @@ angular.module('transitApp')
 				var store = txTrips.objectStore('stop_times');
 				transitData.forEach(function(item) {
 					store.put(item, item.stop_id);
-				});
-			});
-		});
-
-		//populate db with routes
-		vm.gtfsData('routes.txt').then(function(transitData) {
-			vm.dbPromise.then(function(db) {
-				if (!db) return;
-
-				var txTrips = db.transaction('routes', 'readwrite');
-				var store = txTrips.objectStore('routes');
-				transitData.forEach(function(item) {
-					store.put(item, item.route_id);
 				});
 			});
 		});
@@ -207,7 +194,7 @@ angular.module('transitApp')
 	}
 
 	// GTFS data request
-	vm.gtfsData = function(file) {
+	function gtfsData(file) {
 		var url = 'assets/transitData/google_transit.zip';
 		var file = file;
 
@@ -452,7 +439,7 @@ angular.module('transitApp')
 				});
 			}).then(function() {
 				//populate db with routes
-				vm.gtfsData('routes.txt').then(function(transitData) {
+				gtfsData('routes.txt').then(function(transitData) {
 					vm.dbPromise.then(function(db) {
 						if (!db) return;
 
@@ -464,7 +451,7 @@ angular.module('transitApp')
 									selectedRoutes.push(item2);
 								}
 							});
-						})
+						});
 
 						console.log('*** selectedRoutes: ', selectedRoutes)
 			
@@ -473,6 +460,32 @@ angular.module('transitApp')
 						selectedRoutes.forEach(function(item) {
 							store.put(item);
 						});
+						return selectedRoutes;
+					}).then(function(selectedRoutes) {
+						gtfsData('trips.txt').then(function(transitData) {
+								vm.dbPromise.then(function(db) {
+									if (!db) return;
+
+									var selectedTrips = [];
+									console.log('### ', selectedRoutes)
+
+									selectedRoutes.forEach(function(item) {
+										transitData.forEach(function(item2) {
+											if (item2.route_id === item.route_id) {
+												selectedTrips.push(item2);
+											}
+										});
+									});
+
+									console.log('## selectedTrips: ', selectedTrips)
+
+									var tx = db.transaction('trips', 'readwrite');
+									var store = tx.objectStore('trips');
+									selectedTrips.forEach(function(trip) {
+										store.put(trip);
+									});
+								});
+							});
 					});
 				});
 			});
@@ -481,7 +494,7 @@ angular.module('transitApp')
 		});	
 
 		// add stop markers
-		// vm.gtfsData('stops.txt').then(function(stops) {
+		// gtfsData('stops.txt').then(function(stops) {
 		// 	var stopCoords = [];
 		// 	var latLngs = [];
 		// 	stops.forEach(function(stop){

@@ -101,7 +101,7 @@
 	<div>
 		<select ng-model="vm.selectedRoute">
 			<option>Select a route</option>
-			<option ng-repeat="route in vm.routes" value="{{route.name}}">{{route.name}}</option>
+			<option ng-repeat="route in vm.routes" value="{{route.name}}">{{route.name}} <span style="color: {{route.route_color}};">color</span></option>
 		</select>
 	</div>
 
