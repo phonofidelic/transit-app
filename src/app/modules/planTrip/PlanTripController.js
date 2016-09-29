@@ -57,7 +57,7 @@ angular.module('transitApp')
 					stopTimesStore.createIndex('by-id', 'stop_id');
 				case 3:
 					var routesStore = upgradeDb.createObjectStore('routes', {
-						keyPath: 'route_id'
+						keyPath: 'onestop_id'
 					});
 					routesStore.createIndex('by-name', 'route_short_name');
 			}
@@ -555,9 +555,21 @@ angular.module('transitApp')
 		return map;
 	};
 
-	vm.selectRoute = function() {
+	vm.selectRoute = function(route) {
+		console.log('route: ', route);
+		// transitService.routeByOnestopId(route.onestop_id).then(function(stops) {
+		// 	console.log('stops: ', stops);
+		// });
 
-	}
+		vm.dbPromise.then(function(db) {
+			if (!db) return;
+			var tx = db.transaction('routes');
+			var store = tx.objectStore('routes');
+			return store.get(route.onestop_id);
+		}).then(function(dbRoute) {
+			console.log('dbRoute: ', dbRoute)
+		})
+	};
 
 	vm.parseSelectedRoute = function(selectedRoute) {
 		// vm.selectedRoute = JSON.parse(selectedRoute);

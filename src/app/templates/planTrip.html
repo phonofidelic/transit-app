@@ -109,7 +109,7 @@
 				<li ng-repeat="route in vm.routes" class="route-button-container">
 					<button class="col-sm-12 btn route-button" 			
 						ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
-						>{{route.name}} </button>
+						ng-click="vm.selectRoute(route)">{{route.name}} </button>
 				</li>
 			</ul>
 		</div>
