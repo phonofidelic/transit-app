@@ -25,6 +25,27 @@ li.location-suggestion {
   background: #FF5722;
   z-index: 1000; }
 
+/*
+ *  route list
+ */
+.route-list {
+  width: 100%;
+  height: 20em;
+  overflow: scroll; }
+
+.route-list-container {
+  width: 100%;
+  list-style: none; }
+
+.route-button {
+  width: 100%; }
+
+li {
+  list-style: none; }
+
+/*
+ * transition for notification popup
+ */
 /* The starting CSS styles for the enter animation */
 .update-alert.ng-enter {
   transition: 0.5s linear all;

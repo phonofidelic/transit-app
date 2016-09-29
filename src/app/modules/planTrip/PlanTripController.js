@@ -215,7 +215,7 @@ angular.module('transitApp')
 				}).then(function(gtsfArray) {
 					return gtfsParserService.toJSON(gtsfArray);
 				}).then(function(gtsfJSON) {
-					console.log('gtsfJSON: ', gtsfJSON);
+					// console.log('gtsfJSON: ', gtsfJSON);
 					resolve(gtsfJSON);
 				}).catch(function(err) {
 					console.log('readZip error: ', err);
@@ -455,7 +455,7 @@ angular.module('transitApp')
 							});
 						});
 
-						console.log('*** selectedRoutes: ', selectedRoutes)
+						// console.log('*** selectedRoutes: ', selectedRoutes)
 			
 						var tx = db.transaction('routes', 'readwrite');
 						var store = tx.objectStore('routes');
@@ -480,7 +480,7 @@ angular.module('transitApp')
 									});
 								});
 
-								console.log('## selectedTrips: ', selectedTrips)
+								// console.log('## selectedTrips: ', selectedTrips)
 
 								var tx = db.transaction('trips', 'readwrite');
 								var store = tx.objectStore('trips');
