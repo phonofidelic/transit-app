@@ -38,7 +38,7 @@ angular.module('transitApp')
 			return Promise.resolve();
 		}
 		console.log('initiating database');
-		return idb.open('gtfsData', 7, function(upgradeDb) {
+		return idb.open('gtfsData', 8, function(upgradeDb) {
 			switch (upgradeDb.oldVersion) {
 				case 0: 
 					var stopsStore = upgradeDb.createObjectStore('stops', {
@@ -59,7 +59,7 @@ angular.module('transitApp')
 					var routesStore = upgradeDb.createObjectStore('routes', {
 						keyPath: 'route_id'
 					});
-					routesStore.createIndex('by-id', 'route_id');
+					routesStore.createIndex('by-name', 'route_short_name');
 			}
 			// var stopsStore = upgradeDb.createObjectStore('stops', {
 			// 	keyPath: 'stop_id'
@@ -438,17 +438,19 @@ angular.module('transitApp')
 					});				
 				});
 			}).then(function() {
-				//populate db with routes
+				// *** populate db with routes ***
 				gtfsData('routes.txt').then(function(transitData) {
 					vm.dbPromise.then(function(db) {
 						if (!db) return;
 
 						var selectedRoutes = [];
 
-						vm.routes.forEach(function(item) {
-							transitData.forEach(function(item2) {
-								if (item.name === item2.route_short_name) {
-									selectedRoutes.push(item2);
+						vm.routes.forEach(function(transitlandItem) {
+							transitData.forEach(function(idbItem) {
+								if (transitlandItem.name === idbItem.route_short_name) {
+									// transfer data from transitland to stored db entry
+									idbItem.onestop_id = transitlandItem.onestop_id;
+									selectedRoutes.push(idbItem);
 								}
 							});
 						});
@@ -460,32 +462,52 @@ angular.module('transitApp')
 						selectedRoutes.forEach(function(item) {
 							store.put(item);
 						});
+
 						return selectedRoutes;
 					}).then(function(selectedRoutes) {
 						gtfsData('trips.txt').then(function(transitData) {
-								vm.dbPromise.then(function(db) {
-									if (!db) return;
+							vm.dbPromise.then(function(db) {
+								if (!db) return;
 
-									var selectedTrips = [];
-									console.log('### ', selectedRoutes)
+								var selectedTrips = [];
+								
 
-									selectedRoutes.forEach(function(item) {
-										transitData.forEach(function(item2) {
-											if (item2.route_id === item.route_id) {
-												selectedTrips.push(item2);
-											}
-										});
-									});
-
-									console.log('## selectedTrips: ', selectedTrips)
-
-									var tx = db.transaction('trips', 'readwrite');
-									var store = tx.objectStore('trips');
-									selectedTrips.forEach(function(trip) {
-										store.put(trip);
+								selectedRoutes.forEach(function(item) {
+									transitData.forEach(function(item2) {
+										if (item2.route_id === item.route_id) {
+											selectedTrips.push(item2);
+										}
 									});
 								});
-							});
+
+								console.log('## selectedTrips: ', selectedTrips)
+
+								var tx = db.transaction('trips', 'readwrite');
+								var store = tx.objectStore('trips');
+								selectedTrips.forEach(function(trip) {
+									store.put(trip);
+								});
+								return selectedTrips;
+							})
+							// .then(function(selectedTrips) {
+							// 	gtfsData('stop_times.txt').then(function(transitData) {
+							// 		vm.dbPromise.then(function(db) {
+							// 			if (!db) return;
+
+							// 			var selectedStopTimes = [];
+
+							// 			selectedTrips.forEach(function(selectedTrip) {
+							// 				transitData.forEach(function(trip) {
+							// 					if (trip.trip_id === selectedTrip.trip_id) {
+							// 						selectedStopTimes.push(trip);
+							// 					}
+							// 				});
+							// 			});
+							// 			console.log('*** selectedStopTimes: ', selectedStopTimes)
+							// 		});
+							// 	});
+							// });
+						});
 					});
 				});
 			});
@@ -531,6 +553,25 @@ angular.module('transitApp')
 
 		$log.log('init map');
 		return map;
+	};
+
+	vm.selectRoute = function() {
+
+	}
+
+	vm.parseSelectedRoute = function(selectedRoute) {
+		// vm.selectedRoute = JSON.parse(selectedRoute);
+		console.log('vm.selectedRoute: ', selectedRoute)
+
+		// get route from db by route_id
+		vm.dbPromise.then(function(db) {
+			if (!db) return;
+
+			return db.transaction('routes')
+				.objectStore('routes').get(selectedRoute);
+		}).then(function(route) {
+			console.log('selected db route: ', route)
+		})
 	};
 
 	vm.routesByBbox = function(coords) {

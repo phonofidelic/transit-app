@@ -100,15 +100,15 @@
 
 	<div>
 		<select ng-model="vm.selectedRoute">
-			<option>Select a route</option>
-			<option ng-repeat="route in vm.routes" value="{{route.name}}">{{route.name}} <span style="color: {{route.route_color}};">color</span></option>
+			<option ng-repeat="route in vm.routes track by $index" value="{{$index}}">{{vm.routes[$index].name}} <span style="color: {{route.route_color}};">color</span></option>
 		</select>
 	</div>
 
-<!-- 	<div class="row">
-		<div class="col-sm-12" ng-repeat="route in vm.routes">{{route.name}}</div>
-	</div> -->
-	
+	<div class="row">
+		<button class="col-sm-12 btn" ng-repeat="route in vm.routes" ng-style="{'background': '#{{route.color}}', 'color': '#fff'}">{{route.name}} </button>
+	</div>
+
+
 	<div class="row">
 		<div class="col-sm-12 map-container">
 			<div id="map" ng-init="vm.initMap()"></div>

@@ -5,11 +5,11 @@ self.addEventListener('install', function(event) {
 		caches.open(staticCacheName).then(function(cache) {
 			return cache.addAll([
 				'/',
-				// 'css/main.min.css',
-				// 'app/app.min.js',
-				// 'lib/deps.min.js',
-				// 'css/deps.min.css',
-				// 'app/templates/planTrip.html'
+				'css/main.min.css',
+				'app/app.min.js',
+				'lib/deps.min.js',
+				'css/deps.min.css',
+				'app/templates/planTrip.html'
 			]);
 		})
 	);
