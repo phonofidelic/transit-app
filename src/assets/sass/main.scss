@@ -15,6 +15,10 @@ $divider-color:        #BDBDBD;
 	// position: absolute;
 }
 
+.main {
+  padding: 0px;
+}
+
 li.location-suggestion {
 	list-style: none;
 }
@@ -31,7 +35,72 @@ li.location-suggestion {
 	margin-bottom: 10px;
 }
 
-// http://stackoverflow.com/questions/13609006/floating-footer-always-on-the-bottom-and-visible
+
+
+
+/*
+ *  route list
+ */
+.route-list {
+  width: 100%;
+  // height: 20em;
+  // overflow: scroll;
+  // left: 0;
+  // right: 0;
+  margin: 0px;
+  padding: 0px;
+  // position: absolute;
+}
+
+.route-list-container {
+  width: 100%;
+  list-style: none;
+  // left: 0;
+  // right: 0;
+}
+
+.route-button {
+  width: 100%;
+  height: 50px;
+  border-radius: 0px;
+  // left: 0;
+  // right: 0;
+}
+
+li {
+  list-style: none;
+}
+
+.routeButtonFirst {
+  // border-radius: 0px;
+  // position: fixed;
+  // bottom: 0;
+  // left: 0;
+  // right: 0;
+  // height: 50;
+  // padding:10px;
+  // z-index: 1000;
+}
+
+.stuck {
+  border-radius: 0px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50;
+  padding:10px;
+  z-index: 1000;
+}
+
+.map-container {
+  padding: 0px;
+}
+
+/*
+ * transition for notification popup
+ */
+ // http://stackoverflow.com/questions/13609006/floating-footer-always-on-the-bottom-and-visible
 .update-alert {
     position: fixed;
     bottom: 0;
@@ -42,35 +111,8 @@ li.location-suggestion {
     background: $accent-color;
     z-index:  1000;
     // transition:0.5s linear all;
-	// opacity:0;
+  // opacity:0;
 }
-
-
-/*
- *  route list
- */
-.route-list {
-  width: 100%;
-  height: 20em;
-  overflow: scroll;
-}
-
-.route-list-container {
-  width: 100%;
-  list-style: none;
-}
-
-.route-button {
-  width: 100%;
-}
-
-li {
-  list-style: none;
-}
-
-/*
- * transition for notification popup
- */
 /* The starting CSS styles for the enter animation */
 .update-alert.ng-enter {
   transition:0.5s linear all;

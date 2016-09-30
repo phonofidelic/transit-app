@@ -49,7 +49,7 @@ angular.module('transitApp')
 					var tripsStore = upgradeDb.createObjectStore('trips', {
 						keyPath: 'trip_id'
 					});
-					tripsStore.createIndex('by-id', 'trip_id');
+					tripsStore.createIndex('by-route-id', 'route_id');
 				case 2: 
 					var stopTimesStore = upgradeDb.createObjectStore('stop_times', {
 						keyPath: 'stop_id'
@@ -438,6 +438,21 @@ angular.module('transitApp')
 					});				
 				});
 			}).then(function() {
+
+				// *** set up scroll behavior for route list ***
+				angular.element(window).scroll(function() {
+					var secondItem = angular.element('.routeButtonSecond');
+					var firstItem = angular.element('.routeButtonFirst');
+
+					if (firstItem.offset().top >= secondItem.offset().top) {
+						firstItem.removeClass('stuck');
+					}
+
+					if (angular.element(document).scrollTop() + window.innerHeight < firstItem.offset().top) {
+						firstItem.addClass('stuck');
+					}
+				});
+
 				// *** populate db with routes ***
 				gtfsData('routes.txt').then(function(transitData) {
 					vm.dbPromise.then(function(db) {
@@ -568,7 +583,15 @@ angular.module('transitApp')
 			return store.get(route.onestop_id);
 		}).then(function(dbRoute) {
 			console.log('dbRoute: ', dbRoute)
-		})
+
+			vm.dbPromise.then(function(db) {
+				var tx = db.transaction('trips');
+				var store = tx.objectStore('trips');
+				return store.get(dbRoute.route_id);	
+			}).then(function(trips) {
+				console.log('trips: ', trips)
+			});
+		});
 	};
 
 	vm.parseSelectedRoute = function(selectedRoute) {
@@ -616,5 +639,9 @@ angular.module('transitApp')
 			console.log('Routes setup errpr: ', err);
 		});
 	};
+
+	// angular.element('#stick').sticky();
+	// var secondItemTop = angular.element('.routeButtonFirst').offset().top;
+
 
 }]);

@@ -1,4 +1,4 @@
-<div class="container" ng-init="vm.getCurrentPosition(); vm.init()">
+<div class="container main" ng-init="vm.getCurrentPosition(); vm.init()">
 	<form action="" role="form">
 		<legend>Form title</legend>
 	
@@ -103,17 +103,18 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-xs-12">
+	<!-- <div class="row"> -->
+		<!-- <div class="col-xs-12"> -->
 			<ul class="route-list">
 				<li ng-repeat="route in vm.routes" class="route-button-container">
 					<button class="col-sm-12 btn route-button" 			
 						ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
+						ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1}"
 						ng-click="vm.selectRoute(route)">{{route.name}} </button>
 				</li>
 			</ul>
-		</div>
-	</div>
+		<!-- </div> -->
+	<!-- </div> -->
 
 	<div class="update-alert" ng-if="vm.showToast">
 		<span>An update is ready</span>
