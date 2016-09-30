@@ -9,6 +9,10 @@ $primary-text-color:   #212121;
 $secondary-text-color: #757575;
 $divider-color:        #BDBDBD;
 
+body {
+  overflow-x: hidden;
+}
+
 #map {
 	height: 500px;
 	width: 100%;
@@ -94,7 +98,7 @@ li {
 }
 
 .map-container {
-  padding: 0px;
+  // padding: 0px;
 }
 
 /*

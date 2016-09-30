@@ -416,7 +416,7 @@ angular.module('transitApp')
 					}
 				});
 
-				vm.routes = response.routes;
+				vm.routes = localRoutes;
 				// updates view to with routes data
 				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
 				$scope.$apply();
@@ -448,7 +448,7 @@ angular.module('transitApp')
 						firstItem.removeClass('stuck');
 					}
 
-					if (angular.element(document).scrollTop() + window.innerHeight < firstItem.offset().top) {
+					if (angular.element(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
 						firstItem.addClass('stuck');
 					}
 				});

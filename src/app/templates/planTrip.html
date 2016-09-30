@@ -1,5 +1,5 @@
 <div class="container main" ng-init="vm.getCurrentPosition(); vm.init()">
-	<form action="" role="form">
+	<!-- <form action="" role="form">
 		<legend>Form title</legend>
 	
 		<div class="form-group">
@@ -72,11 +72,11 @@
 				</option>
 			</datalist>
 		</div>
-		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button>
+		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button> -->
 		<!-- <button type="button" class="btn btn-default" ng-click="vm.scheduleStopPairs(vm.inputData.departure.onestop_id)">show trip</button> -->
-	</div>
+	<!-- </div> -->
 
-	<table class="table">
+	<!-- <table class="table"> -->
 <!-- 		<tr class="trip" ng-repeat="stopPair in vm.scheduleStopPairs">
 			<td>
 				{{stopPair.trip_headsign}}
@@ -86,7 +86,7 @@
 				</ul>
 			</td>
 		</tr> -->
-	</table>
+	<!-- </table> -->
 
 
 <!-- 	<div class="row">
@@ -110,7 +110,7 @@
 					<button class="col-sm-12 btn route-button" 			
 						ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
 						ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1}"
-						ng-click="vm.selectRoute(route)">{{route.name}} </button>
+						ng-click="vm.selectRoute(route)">{{route.name}} - {{route.operated_by_name}}</button>
 				</li>
 			</ul>
 		<!-- </div> -->
