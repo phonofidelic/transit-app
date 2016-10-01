@@ -106,7 +106,7 @@ gulp.task('deps', function() {
 			  'src/lib/jszip/dist/jszip.js',
 			  'src/lib/jszip-utils/dist/jszip-utils.js',
 			  'src/lib/jquery.sticky/jquery.sticky.js',
-			  'src/lib/**/*.min.js',])
+			  'src/lib/**/*.min.js'])
 	.pipe(flatten())
 	.pipe(concat('deps.min.js'))
 	.pipe(gulp.dest('dist/lib'));

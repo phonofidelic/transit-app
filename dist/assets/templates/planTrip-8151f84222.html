@@ -1,5 +1,5 @@
-<div class="container" ng-init="vm.getCurrentPosition(); vm.init()">
-	<form action="" role="form">
+<div class="container main" ng-init="vm.getCurrentPosition(); vm.init()">
+	<!-- <form action="" role="form">
 		<legend>Form title</legend>
 	
 		<div class="form-group">
@@ -72,11 +72,11 @@
 				</option>
 			</datalist>
 		</div>
-		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button>
+		<button type="button" class="btn btn-default" ng-click="vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)">show trip vm.routeBetween(vm.inputData.departure.onestop_id, vm.inputData.arrival.onestop_id)</button> -->
 		<!-- <button type="button" class="btn btn-default" ng-click="vm.scheduleStopPairs(vm.inputData.departure.onestop_id)">show trip</button> -->
-	</div>
+	<!-- </div> -->
 
-	<table class="table">
+	<!-- <table class="table"> -->
 <!-- 		<tr class="trip" ng-repeat="stopPair in vm.scheduleStopPairs">
 			<td>
 				{{stopPair.trip_headsign}}
@@ -86,27 +86,15 @@
 				</ul>
 			</td>
 		</tr> -->
-	</table>
+	<!-- </table> -->
 
-<!-- 	<div>
-		<button type="button" class="btn btn-default" ng-click="vm.gtfsData()">vm.gtfsData()</button>
-		<button type="button" class="btn btn-default" ng-click="vm.gtfsParserService.toJSON(vm.stopsData)">vm.gtfsParserService.toJSON(vm.stopsData)</button>
-		<table class="table">
-			<tr ng-repeat="row in vm.stopsData track by $index">
-				<td ng-repeat="cell in row track by $index">{{cell}}</td>
-			</tr>
-		</table>
+
+<!-- 	<div class="row">
+		<button class="col-sm-12 btn" 
+				ng-repeat="route in vm.routes" 
+				ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
+				>{{route.name}} </button>
 	</div> -->
-
-	<div>
-		<select ng-model="vm.selectedRoute">
-			<option ng-repeat="route in vm.routes track by $index" value="{{$index}}">{{vm.routes[$index].name}} <span style="color: {{route.route_color}};">color</span></option>
-		</select>
-	</div>
-
-	<div class="row">
-		<span class="col-sm-12" ng-repeat="route in vm.routes" ng-style="{'background': '#{{route.color}}', 'color': '#fff'}">{{route.name}} </span>
-	</div>
 
 
 	<div class="row">
@@ -114,6 +102,19 @@
 			<div id="map" ng-init="vm.initMap()"></div>
 		</div>
 	</div>
+
+	<!-- <div class="row"> -->
+		<!-- <div class="col-xs-12"> -->
+			<ul class="route-list">
+				<li ng-repeat="route in vm.routes" class="route-button-container">
+					<button class="col-sm-12 btn route-button" 			
+						ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
+						ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1}"
+						ng-click="vm.selectRoute(route)">{{route.name}} - {{route.operated_by_name}}</button>
+				</li>
+			</ul>
+		<!-- </div> -->
+	<!-- </div> -->
 
 	<div class="update-alert" ng-if="vm.showToast">
 		<span>An update is ready</span>

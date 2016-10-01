@@ -440,18 +440,18 @@ angular.module('transitApp')
 			}).then(function() {
 
 				// *** set up scroll behavior for route list ***
-				angular.element(window).scroll(function() {
-					var secondItem = angular.element('.routeButtonSecond');
-					var firstItem = angular.element('.routeButtonFirst');
+				window.onscroll = function() {
+					var secondItem = $('.routeButtonSecond');
+					var firstItem = $('.routeButtonFirst');
 
 					if (firstItem.offset().top >= secondItem.offset().top) {
 						firstItem.removeClass('stuck');
 					}
 
-					if (angular.element(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
+					if ($(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
 						firstItem.addClass('stuck');
 					}
-				});
+				};
 
 				// *** populate db with routes ***
 				gtfsData('routes.txt').then(function(transitData) {
