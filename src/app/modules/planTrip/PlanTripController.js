@@ -440,9 +440,14 @@ angular.module('transitApp')
 			}).then(function() {
 
 				// *** set up scroll behavior for route list ***
+				var secondItem = $('.routeButtonSecond');
+				var firstItem = $('.routeButtonFirst');
+
+				if (secondItem.offset().top < firstItem.offset().top) {
+					// $('.notFirst').css('visibility', 'hidden');
+				}
 				window.onscroll = function() {
-					var secondItem = $('.routeButtonSecond');
-					var firstItem = $('.routeButtonFirst');
+
 
 					if (firstItem.offset().top >= secondItem.offset().top) {
 						firstItem.removeClass('stuck');
@@ -640,8 +645,9 @@ angular.module('transitApp')
 		});
 	};
 
-	// angular.element('#stick').sticky();
-	// var secondItemTop = angular.element('.routeButtonFirst').offset().top;
-
+	vm.testFunction = function() {
+		console.log('hello world!');
+		$('#routesContainer').slideUp();
+	};
 
 }]);

@@ -29,7 +29,9 @@
     "indexeddb-promised": "https://github.com/jakearchibald/indexeddb-promised.git",
     "angular-animate": "^1.5.8",
     "jszip-utils": "^0.0.2",
-    "jszip": "Stuk/jszip#^3.1.2"
+    "jszip": "Stuk/jszip#^3.1.2",
+    "angular-touch": "^1.5.8",
+    "angular-swipe": "^0.1.0"
   },
   "resolutions": {
     "angular": "^1.5.7"

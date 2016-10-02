@@ -3,4 +3,4 @@
 *
 * Description
 */
-angular.module('transitApp', ['ngRoute', 'ngAnimate']);
+angular.module('transitApp', ['ngRoute', 'ngAnimate', 'ngTouch', 'swipe']);
