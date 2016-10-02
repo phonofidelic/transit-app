@@ -598,21 +598,35 @@ angular.module('transitApp')
 				return routeIdIndex.openCursor();	
 			}).then(function(cursor) {
 				if (!cursor) return;
-				// console.log('cursor: ', cursor)
 				return cursor.advance(1);
 			}).then(function logValue(cursor) {
 				if (!cursor) return;
-				// var selectedTrips = [];
 				if (cursor.value.route_id === dbRoute.route_id) {
 					console.log('cursor at: ', cursor.value.route_id);
 					selectedTrips.push(cursor.value);
-					
-				}
-				
+				}				
 				return cursor.continue().then(logValue);
 			}).then(function() {
 				console.log('Done cusoring');
 				console.log('selected trips: ', selectedTrips);
+				gtfsData('stop_times.txt').then(function(transitData) {
+					var tempStopTimes = [];
+					vm.dbPromise.then(function(db) {
+						if (!db) return;
+						
+						var tx = db.transaction('stop_times', 'readwrite');
+						var store = tx.objectStore('stop_times');
+						transitData.forEach(function(entry) {
+							selectedTrips.forEach(function(trip) {
+								if (entry.trip_id === trip.trip_id) {
+									store.put(entry);
+									tempStopTimes.push(entry);
+								}
+							});
+						});						
+					});
+					return tempStopTimes;
+				});
 			});
 		});
 	};
@@ -630,37 +644,6 @@ angular.module('transitApp')
 		}).then(function(route) {
 			console.log('selected db route: ', route)
 		})
-	};
-
-	vm.routesByBbox = function(coords) {
-		transitService.routesByBbox(coords).then(function(response) {
-			var localRoutes = response.routes.filter(function(route) {
-				if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {
-					return route;
-				}
-			});
-
-			vm.routes = response.routes;
-			console.log('*** vm.routes: ', vm.routes);
-			console.log('### testing ###')
-			localRoutes.forEach(function(route) {
-					
-				var routeColor = route.color;
-				var lines = route.geometry.coordinates;
-
-				lines.forEach(function(line) {
-					var latLngs = [];
-					line.forEach(function(coord) {
-						latLngs.push(L.latLng(coord[1], coord[0]));
-					});
-					// add line to map
-					var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
-					// map.fitBounds(routeLine.getBounds());
-				});		
-			});
-		}).catch(function(err) {
-			console.log('Routes setup errpr: ', err);
-		});
 	};
 
 	vm.testFunction = function() {
