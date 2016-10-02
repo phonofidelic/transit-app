@@ -409,13 +409,14 @@ angular.module('transitApp')
 				lat: position.coords.latitude,
 				lon: position.coords.longitude
 			}
+			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
 				var localRoutes = response.routes.filter(function(route) {
 					if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {
 						return route;
 					}
 				});
-
+				
 				vm.routes = localRoutes;
 				// updates view to with routes data
 				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
@@ -580,7 +581,7 @@ angular.module('transitApp')
 		// transitService.routeByOnestopId(route.onestop_id).then(function(stops) {
 		// 	console.log('stops: ', stops);
 		// });
-
+		var selectedTrips = [];
 		vm.dbPromise.then(function(db) {
 			if (!db) return;
 			var tx = db.transaction('routes');
@@ -592,9 +593,26 @@ angular.module('transitApp')
 			vm.dbPromise.then(function(db) {
 				var tx = db.transaction('trips');
 				var store = tx.objectStore('trips');
-				return store.get(dbRoute.route_id);	
-			}).then(function(trips) {
-				console.log('trips: ', trips)
+				var routeIdIndex = store.index('by-route-id');
+
+				return routeIdIndex.openCursor();	
+			}).then(function(cursor) {
+				if (!cursor) return;
+				// console.log('cursor: ', cursor)
+				return cursor.advance(1);
+			}).then(function logValue(cursor) {
+				if (!cursor) return;
+				// var selectedTrips = [];
+				if (cursor.value.route_id === dbRoute.route_id) {
+					console.log('cursor at: ', cursor.value.route_id);
+					selectedTrips.push(cursor.value);
+					
+				}
+				
+				return cursor.continue().then(logValue);
+			}).then(function() {
+				console.log('Done cusoring');
+				console.log('selected trips: ', selectedTrips);
 			});
 		});
 	};
