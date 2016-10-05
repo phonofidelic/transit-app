@@ -32,7 +32,9 @@ li.location-suggestion {
 .route-list {
   width: 100%;
   margin: 0px;
-  padding: 0px; }
+  padding: 0px;
+  background: #B2EBF2;
+  min-height: 50px; }
 
 .route-list.ng-enter {
   transition: 0.5s linear all;

@@ -17,6 +17,13 @@ angular.module('transitApp')
 	var transitService = new TransitLandRequestService();
 	var gtfsParserService = new GTFSParserService();
 	var jsZip = new JSZip();
+	// vm.routes = [
+	// 	{
+	// 		onestop_id: "r-dhwu-06",
+	// 		route_color: "9F218B",
+	// 		route_short_name: "06"
+	// 	}
+	// ];
 
 	var map = L.map('map', {
 		scrollWheelZoom: false
@@ -195,7 +202,7 @@ angular.module('transitApp')
 
 	// GTFS data request
 	function gtfsData(file) {
-		var url = 'assets/transitData/google_transit.zip';
+		var url = 'assets/transitData/google_transit.zip';		//**************************** !!!hardcoded!!!
 		var file = file;
 
 		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
@@ -239,7 +246,12 @@ angular.module('transitApp')
 		});
 	};
 
-	vm.routeBetween = function(dep_onestop_id, arr_onestop_id) {
+	vm.routeBetween = function(route) {
+		var arrLength = route.stops_served_by_route.length
+		console.log('arrLength: ', arrLength)
+		var dep_onestop_id = route.stops_served_by_route[0].stop_onestop_id;
+		var arr_onestop_id = route.stops_served_by_route[arrLength - 1].stop_onestop_id;
+		console.log('arr_onestop_id: ', arr_onestop_id)
 		transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
 			console.log('controller routeBetween response: ', response);
 		});
@@ -292,22 +304,22 @@ angular.module('transitApp')
 				console.log('region: ', results.address_components[3].short_name);
 				vm.currentPosition.addressString = results.formatted_address;
 				// vm.currentPosition.countyString = results.address_components[3].short_name;
-				vm.currentPosition.countyString = 'o-dhw-browardcountytransit';
+				vm.currentPosition.countyString = 'o-dhw-browardcountytransit';		//****************************** !!!hardcoded!!!
 			});
 		});		
 	};
 
-	vm.autoAddress = function(id) {
-		var input = document.getElementById(id);
-		var options = {
-			types: ['address']
-		};
-		if (input.id === 'departure-inp') {
-			$scope.departureAutocomplete = new google.maps.places.Autocomplete(input, options);
-		} else {
-			$scope.arrivalAutocomplete = new google.maps.places.Autocomplete(input, options);
-		}
-	};
+	// vm.autoAddress = function(id) {
+	// 	var input = document.getElementById(id);
+	// 	var options = {
+	// 		types: ['address']
+	// 	};
+	// 	if (input.id === 'departure-inp') {
+	// 		$scope.departureAutocomplete = new google.maps.places.Autocomplete(input, options);
+	// 	} else {
+	// 		$scope.arrivalAutocomplete = new google.maps.places.Autocomplete(input, options);
+	// 	}
+	// };
 
 	vm.getAddress = function(id) {
 		if (id === 'departure-inp') {
@@ -412,12 +424,16 @@ angular.module('transitApp')
 			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
 				var localRoutes = response.routes.filter(function(route) {
-					if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {
+					// if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {	//************************ !!!hardcoded!!!
 						return route;
-					}
+					// }
 				});
 				
 				vm.routes = localRoutes;
+				// mock data for offline work
+				// vm.routes = mockData;
+
+
 				// updates view to with routes data
 				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
 				$scope.$apply();
@@ -425,7 +441,13 @@ angular.module('transitApp')
 				
 				localRoutes.forEach(function(route) {
 						
-					var routeColor = route.color;
+					var routeColor; 
+					if (route.color === null || route.color === undefined) {
+						var color = randomColor();
+						route.color = color.replace('#', '');
+						console.log('routeColor: ', route.color);
+					}
+
 					var lines = route.geometry.coordinates;
 
 					lines.forEach(function(line) {
@@ -434,7 +456,7 @@ angular.module('transitApp')
 							latLngs.push(L.latLng(coord[1], coord[0]));
 						});
 						// add line to map
-						var routeLine = L.polyline(latLngs, { color: '#'+routeColor }).addTo(map);
+						var routeLine = L.polyline(latLngs, { color: '#' + route.color }).addTo(map);
 						// map.fitBounds(routeLine.getBounds());
 					});				
 				});
@@ -531,9 +553,11 @@ angular.module('transitApp')
 						});
 					});
 				});
+			}).catch(function(err) {
+				console.error('*** request error: ', err)
 			});
-		}).catch(function(e) {
-			console.log('getPosition error: ', e);
+		}).catch(function(err) {
+			console.log('getPosition error: ', err);
 		});	
 
 		// add stop markers
@@ -609,7 +633,7 @@ angular.module('transitApp')
 			}).then(function() {
 				console.log('Done cusoring');
 				console.log('selected trips: ', selectedTrips);
-				gtfsData('stop_times.txt').then(function(transitData) {
+				var tempStopTimes = gtfsData('stop_times.txt').then(function(transitData) {
 					var tempStopTimes = [];
 					vm.dbPromise.then(function(db) {
 						if (!db) return;
@@ -625,8 +649,15 @@ angular.module('transitApp')
 							});
 						});						
 					});
+					console.log('bajs')
 					return tempStopTimes;
 				});
+				return tempStopTimes;
+			}).then(function(tempStopTimes) {
+				console.log('tempStopTimes: ', tempStopTimes)
+
+			}).catch(function(err) {
+				console.error('OOPS! ', err)
 			});
 		});
 	};

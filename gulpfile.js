@@ -105,7 +105,7 @@ gulp.task('deps', function() {
 			  'src/lib/indexeddb-promised/lib/idb.js',
 			  'src/lib/jszip/dist/jszip.js',
 			  'src/lib/jszip-utils/dist/jszip-utils.js',
-			  'src/lib/jquery.sticky/jquery.sticky.js',
+			  'src/lib/randomcolor/randomColor.js',
 			  'src/lib/**/*.min.js'])
 	.pipe(flatten())
 	.pipe(concat('deps.min.js'))
