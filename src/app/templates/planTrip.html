@@ -109,10 +109,10 @@
 
 			<ul class="route-list" id="routesContainer">
 				<li ng-repeat="route in vm.routes" class="route-button-container">
-					<button class="col-sm-12 btn route-button" 			
-						ng-style="{'background': '#{{route.color}}', 'color': '#fff'}"
+					<button class="col-sm-12 btn route-button"
+						ng-style="vm.setColor(route)"
 						ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1, notFirst: !$first}"
-						ng-click="vm.selectRoute(route)">{{route.name}} - {{route.operated_by_name}}</button>
+						ng-click="vm.selectRoute(route)">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
 				</li>
 			</ul>
 		<!-- </div> -->

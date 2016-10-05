@@ -423,29 +423,26 @@ angular.module('transitApp')
 			}
 			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
-				var localRoutes = response.routes.filter(function(route) {
+				vm.routes = response.routes.filter(function(route) {
 					// if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {	//************************ !!!hardcoded!!!
 						return route;
 					// }
 				});
-				
-				vm.routes = localRoutes;
-				// mock data for offline work
-				// vm.routes = mockData;
-
 
 				// updates view to with routes data
 				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
 				$scope.$apply();
 				console.log('*** vm.routes: ', vm.routes);
 				
-				localRoutes.forEach(function(route) {
+				vm.routes.forEach(function(route) {
 						
 					var routeColor; 
 					if (route.color === null || route.color === undefined) {
 						var color = randomColor();
-						route.color = color.replace('#', '');
+						// color = color.replace('#', '');
+						route.color = color.toUpperCase();
 						console.log('routeColor: ', route.color);
+						$scope.$apply();
 					}
 
 					var lines = route.geometry.coordinates;
@@ -456,10 +453,12 @@ angular.module('transitApp')
 							latLngs.push(L.latLng(coord[1], coord[0]));
 						});
 						// add line to map
-						var routeLine = L.polyline(latLngs, { color: '#' + route.color }).addTo(map);
+						var routeLine = L.polyline(latLngs, { color: route.color }).addTo(map);
 						// map.fitBounds(routeLine.getBounds());
-					});				
+					});
+					console.log('*** vm.routes: ', vm.routes);			
 				});
+				
 			}).then(function() {
 
 				// *** set up scroll behavior for route list ***
@@ -599,6 +598,10 @@ angular.module('transitApp')
 		$log.log('init map');
 		return map;
 	};
+
+	vm.setColor = function(route) {
+		return {background: route.color};
+	}
 
 	vm.selectRoute = function(route) {
 		console.log('route: ', route);
