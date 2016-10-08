@@ -190,11 +190,11 @@ angular.module('transitApp')
 		});
 	};
 
-	vm.init = function() {
+	// vm.init = function() {
 		// openDatabase();
 		// populateDb();
-		registerServiceWorker();
-	};
+		// registerServiceWorker();
+	// };
 
 	vm.deleteObjectStore = function(objectStore) {
 
@@ -202,7 +202,7 @@ angular.module('transitApp')
 
 	// GTFS data request
 	function gtfsData(file) {
-		var url = 'assets/transitData/google_transit.zip';		//**************************** !!!hardcoded!!!
+		var url = 'assets/transitData/gtfsPortland.zip';		//**************************** !!!hardcoded!!!
 		var file = file;
 
 		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
@@ -383,8 +383,22 @@ angular.module('transitApp')
 		});
 	};
 
-	vm.initMap = function() {
-		
+	function setBboxLine(position) {
+			// create bounding boxs area to illustrate routesByBbox search area
+			var latLangs = [];
+			var swLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude - 0.05),
+				nwLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude + 0.05),
+				neLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude + 0.05),
+				seLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude - 0.05);
+
+			latLangs.push(swLatlng, nwLatlng, neLatlng, seLatlng, swLatlng);
+
+			var boundsLine = L.polyline(latLangs, {color: 'red', fill: 'green'}).addTo(map);
+			// map.fitBounds(boundsLine.getBounds());
+	}
+
+	vm.init = function() {
+		registerServiceWorker();
 		// // Leaflet map
 		// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 		//   	attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
@@ -402,17 +416,7 @@ angular.module('transitApp')
 		locationService.getCurrentPosition().then(function(position) {
 			map.setView([position.coords.latitude, position.coords.longitude], 14);
 
-			// // create bounding boxs area to illustrate routesByBbox search area
-			// var latLangs = [];
-			// var swLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude - 0.05),
-			// 	nwLatlng = L.latLng(position.coords.latitude + 0.05, position.coords.longitude + 0.05),
-			// 	neLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude + 0.05),
-			// 	seLatlng = L.latLng(position.coords.latitude - 0.05, position.coords.longitude - 0.05);
-
-			// latLangs.push(swLatlng, nwLatlng, neLatlng, seLatlng, swLatlng);
-
-			// var boundsLine = L.polyline(latLangs, {color: 'red', fill: 'green'}).addTo(map);
-			// // map.fitBounds(boundsLine.getBounds());
+			// setBboxLine(position);
 
 			return position;
 		}).then(function(position) {
@@ -423,11 +427,15 @@ angular.module('transitApp')
 			}
 			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
-				vm.routes = response.routes.filter(function(route) {
-					// if (route.operated_by_onestop_id === 'o-dhw-browardcountytransit') {	//************************ !!!hardcoded!!!
-						return route;
-					// }
-				});
+				vm.routes = response.routes;
+				// vm.routes = response.routes.filter(function(route) {
+				// 	var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
+				// 	if (route.operated_by_onestop_id === operators[0]) {	//************************ !!!hardcoded!!!
+				// 		return route;
+				// 	}
+				// });
+
+				vm.currentPosition.countyString = vm.routes[0].operated_by_onestop_id;
 
 				// updates view to with routes data
 				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
@@ -438,10 +446,13 @@ angular.module('transitApp')
 						
 					var routeColor; 
 					if (route.color === null || route.color === undefined) {
-						var color = randomColor();
-						// color = color.replace('#', '');
+						var color = randomColor({
+							luminosity: 'bright'
+							// hue: 'random'
+						});
+						color = color.replace('#', '');
 						route.color = color.toUpperCase();
-						console.log('routeColor: ', route.color);
+						// console.log('routeColor: ', route.color);
 						$scope.$apply();
 					}
 
@@ -453,10 +464,9 @@ angular.module('transitApp')
 							latLngs.push(L.latLng(coord[1], coord[0]));
 						});
 						// add line to map
-						var routeLine = L.polyline(latLngs, { color: route.color }).addTo(map);
+						var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
 						// map.fitBounds(routeLine.getBounds());
 					});
-					console.log('*** vm.routes: ', vm.routes);			
 				});
 				
 			}).then(function() {
@@ -486,18 +496,36 @@ angular.module('transitApp')
 						if (!db) return;
 
 						var selectedRoutes = [];
+						var testRoutes = [];
+
+						// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
+						function collect() {
+							var ret = {};
+							var len = arguments.length;
+							for (var i = 0; i < len; i++) {
+								for (p in arguments[i]) {
+									if (arguments[i].hasOwnProperty(p)) {
+										ret[p] = arguments[i][p];
+									}
+								}
+							}
+							return ret;
+						};
 
 						vm.routes.forEach(function(transitlandItem) {
 							transitData.forEach(function(idbItem) {
 								if (transitlandItem.name === idbItem.route_short_name) {
 									// transfer data from transitland to stored db entry
 									idbItem.onestop_id = transitlandItem.onestop_id;
-									selectedRoutes.push(idbItem);
+
+									// combine transitland and gtfs data
+									var combinedObj = collect(idbItem, transitlandItem);
+									selectedRoutes.push(combinedObj);
 								}
 							});
 						});
 
-						// console.log('*** selectedRoutes: ', selectedRoutes)
+						console.log('*** testRoutes: ', testRoutes)
 			
 						var tx = db.transaction('routes', 'readwrite');
 						var store = tx.objectStore('routes');
@@ -600,22 +628,60 @@ angular.module('transitApp')
 	};
 
 	vm.setColor = function(route) {
-		return {background: route.color};
+		return {background: '#'+route.color};
 	}
 
-	vm.selectRoute = function(route) {
-		console.log('route: ', route);
-		// transitService.routeByOnestopId(route.onestop_id).then(function(stops) {
-		// 	console.log('stops: ', stops);
-		// });
+	vm.selectRoute = function(selectedRoute) {
+		// add stops
+
+
+		gtfsData('stops.txt').then(function(transitData) {
+			// selectedRoute.stops_served_by_route.forEach(function(stop) {
+			// 	console.log('stop_name', stop.stop_name);
+			// });
+
+			vm.dbPromise.then(function(db) {
+				var tx = db.transaction('stops', 'readwrite');
+				var store = tx.objectStore('stops');
+
+				function findStopInRoute(routeStops, gtfsStop) {
+					console.log('heloooo')
+					routeStops.find(function(stop) {
+						if (stop.stop_name === gtfsStop.stop_name) {
+							return true;
+						} else {
+							return false;
+						}
+					})
+				};
+
+				transitData.forEach(function(gtfsStop) {
+					console.log('findStopInRoute: ', findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop))
+					if (findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop)) {
+						store.put(gtfsStop);
+					}
+				})
+			
+			});
+
+
+		}).catch(function(err) {
+			console.error('could not read file: ', err);
+		});
+		
+
+		// console.log('route: ', route);
+		// // transitService.routeByOnestopId(route.onestop_id).then(function(stops) {
+		// // 	console.log('stops: ', stops);
+		// // });
 		var selectedTrips = [];
-		vm.dbPromise.then(function(db) {
-			if (!db) return;
-			var tx = db.transaction('routes');
-			var store = tx.objectStore('routes');
-			return store.get(route.onestop_id);
-		}).then(function(dbRoute) {
-			console.log('dbRoute: ', dbRoute)
+		// vm.dbPromise.then(function(db) {
+		// 	if (!db) return;
+		// 	var tx = db.transaction('routes');
+		// 	var store = tx.objectStore('routes');
+		// 	return store.get(route.onestop_id);
+		// }).then(function(selectedRoute) {
+			console.log('selectedRoute: ', selectedRoute);
 
 			vm.dbPromise.then(function(db) {
 				var tx = db.transaction('trips');
@@ -628,41 +694,43 @@ angular.module('transitApp')
 				return cursor.advance(1);
 			}).then(function logValue(cursor) {
 				if (!cursor) return;
-				if (cursor.value.route_id === dbRoute.route_id) {
-					console.log('cursor at: ', cursor.value.route_id);
+				if (cursor.value.route_id === selectedRoute.name) {
+					// console.log('cursor at: ', cursor.value.trip_id);
 					selectedTrips.push(cursor.value);
-				}				
+				}
+				// console.log('cursor at: ', cursor.value.route_id);			
 				return cursor.continue().then(logValue);
 			}).then(function() {
 				console.log('Done cusoring');
-				console.log('selected trips: ', selectedTrips);
-				var tempStopTimes = gtfsData('stop_times.txt').then(function(transitData) {
-					var tempStopTimes = [];
-					vm.dbPromise.then(function(db) {
-						if (!db) return;
+				// conselectedTripssole.log('selected trips: ', );
+				// return gtfsData('stop_times.txt').then(function(transitData) {
+				// 	var tempStopTimes = [];
+				// 	vm.dbPromise.then(function(db) {
+				// 		if (!db) return;
 						
-						var tx = db.transaction('stop_times', 'readwrite');
-						var store = tx.objectStore('stop_times');
-						transitData.forEach(function(entry) {
-							selectedTrips.forEach(function(trip) {
-								if (entry.trip_id === trip.trip_id) {
-									store.put(entry);
-									tempStopTimes.push(entry);
-								}
-							});
-						});						
-					});
-					console.log('bajs')
-					return tempStopTimes;
-				});
-				return tempStopTimes;
+				// 		var tx = db.transaction('stop_times', 'readwrite');
+				// 		var store = tx.objectStore('stop_times');
+				// 		transitData.forEach(function(entry) {
+				// 			selectedTrips.forEach(function(trip) {
+				// 				if (entry.trip_id === trip.trip_id) {
+				// 					store.put(entry);
+				// 					tempStopTimes.push(entry);
+				// 				}
+				// 			});
+				// 		});						
+				// 	});
+				// 	console.log('bajs')
+				// 	return tempStopTimes;
+				// });
+				// return tempStopTimes;
 			}).then(function(tempStopTimes) {
-				console.log('tempStopTimes: ', tempStopTimes)
-
+				// console.log('tempStopTimes: ', tempStopTimes)
+				console.log('selectedTrips: ', selectedTrips)
 			}).catch(function(err) {
 				console.error('OOPS! ', err)
 			});
-		});
+		// });
+
 	};
 
 	vm.parseSelectedRoute = function(selectedRoute) {

@@ -4,12 +4,12 @@ self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
 			return cache.addAll([
-				'/',
-				'css/main.min.css',
-				'app/app.min.js',
-				'lib/deps.min.js',
-				'css/deps.min.css',
-				'app/templates/planTrip.html'
+				// '/'
+				// 'css/main.min.css',
+				// 'app/app.min.js',
+				// 'lib/deps.min.js',
+				// 'css/deps.min.css',
+				// 'app/templates/planTrip.html'
 				// 'https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css',
 				// 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
 			]);

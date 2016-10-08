@@ -47,7 +47,8 @@ li.location-suggestion {
 .route-button {
   width: 100%;
   height: 50px;
-  border-radius: 0px; }
+  border-radius: 0px;
+  color: #fff; }
 
 li {
   list-style: none; }
