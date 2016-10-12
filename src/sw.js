@@ -30,7 +30,7 @@ self.addEventListener('activate', function(event) {
 			);
 		})
 	);
-});
+});//
 
 self.addEventListener('fetch', function(event) {
 	if (event.request.url.indexOf('https://maps.googleapis.com') == -1 && event.request.url != 'http://www.broward.org/bct/google/latest/google_transit.zip') {

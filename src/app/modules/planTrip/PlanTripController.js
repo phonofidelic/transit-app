@@ -38,6 +38,7 @@ angular.module('transitApp')
 	vm.inputData.arrival = {};
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
+	// vm.routes = [];
 	vm.dbPromise = openDatabase();
 
 	function openDatabase() {
@@ -399,11 +400,10 @@ angular.module('transitApp')
 
 	vm.init = function() {
 		registerServiceWorker();
-		// // Leaflet map
-		// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		//   	attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-		//   	maxZoom: 18
-		// }).addTo(map);
+	};
+
+	vm.initMap = function() {
+		// registerServiceWorker();
 
 		// Tangram map
 		var layer = Tangram.leafletLayer({
@@ -427,7 +427,7 @@ angular.module('transitApp')
 			}
 			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
-				routes = response.routes;
+				var routes = response.routes;
 				// vm.routes = response.routes.filter(function(route) {
 				// 	var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
 				// 	if (route.operated_by_onestop_id === operators[0]) {	//************************ !!!hardcoded!!!
@@ -452,8 +452,7 @@ angular.module('transitApp')
 						});
 						color = color.replace('#', '');
 						route.color = color;
-						// console.log('routeColor: ', route.color);
-						$scope.$apply();
+						// $scope.$apply();
 					}
 
 					var lines = route.geometry.coordinates;
@@ -473,24 +472,26 @@ angular.module('transitApp')
 				return vm.routes;
 			}).then(function(routes) {
 
-				// *** set up scroll behavior for route list ***
-				var secondItem = $('.routeButtonSecond');
-				var firstItem = $('.routeButtonFirst');
+				// // *** set up scroll behavior for route list ***
+				// var secondItem = $('.routeButtonSecond');
+				// var firstItem = $('.routeButtonFirst');
 
-				if (secondItem.offset().top < firstItem.offset().top) {
-					// $('.notFirst').css('visibility', 'hidden');
-				}
-				window.onscroll = function() {
+				// if (secondItem.offset().top < firstItem.offset().top) {
+				// 	// $('.notFirst').css('visibility', 'hidden');
+				// }
+				// window.onscroll = function() {
 
 
-					if (firstItem.offset().top >= secondItem.offset().top) {
-						firstItem.removeClass('stuck');
-					}
+				// 	if (firstItem.offset().top >= secondItem.offset().top) {
+				// 		firstItem.removeClass('stuck');
+				// 	}
 
-					if ($(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
-						firstItem.addClass('stuck');
-					}
-				};
+				// 	if ($(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
+				// 		firstItem.addClass('stuck');
+				// 	}
+				// };
+
+				checkScroll();
 
 				// *** populate db with routes ***
 				gtfsData('routes.txt').then(function(transitData) {
@@ -536,7 +537,7 @@ angular.module('transitApp')
 							store.put(item);
 						});
 
-						
+						// $scope.$apply();
 						return selectedRoutes;
 					}).then(function(selectedRoutes) {
 						gtfsData('trips.txt').then(function(transitData) {
@@ -631,9 +632,47 @@ angular.module('transitApp')
 		return map;
 	};
 
+	function checkScroll() {
+		// *** set up scroll behavior for route list ***
+		var secondItem = $('.routeButtonSecond');
+		var firstItem = $('.routeButtonFirst');
+
+		console.log('secondItem: ', secondItem)
+		console.log('firstItem: ', firstItem)
+
+		if (secondItem.offset().top < firstItem.offset().top) {
+			// $('.notFirst').css('visibility', 'hidden');
+		}
+		window.onscroll = function() {
+
+
+			if (firstItem.offset().top >= secondItem.offset().top) {
+				firstItem.removeClass('stuck');
+			}
+
+			if ($(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
+				firstItem.addClass('stuck');
+			}
+		};
+	};
+
 	vm.setColor = function(route) {
 		return {background: '#'+route.color};
 	}
+
+	// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
+	function collect() {
+		var ret = {};
+		var len = arguments.length;
+		for (var i = 0; i < len; i++) {
+			for (p in arguments[i]) {
+				if (arguments[i].hasOwnProperty(p)) {
+					ret[p] = arguments[i][p];
+				}
+			}
+		}
+		return ret;
+	};
 
 	vm.selectRoute = function(selectedRoute) {
 		// add stops
@@ -652,20 +691,32 @@ angular.module('transitApp')
 				});
 			};
 			
+			selectedRoute.collectedStops = [];
+			collectedStops = [];
 			vm.dbPromise.then(function(db) {
 				var tx = db.transaction('stops', 'readwrite');
 				var store = tx.objectStore('stops');
-
-
+				
 
 				transitData.forEach(function(gtfsStop) {
-					console.log('findStopInRoute: ', findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop))
+					// console.log('findStopInRoute: ', findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop))
 					
 					if (findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop)) {
-						store.put(gtfsStop)
+						store.put(gtfsStop);
+						selectedRoute.stops_served_by_route.forEach(function(stop) {
+							if (gtfsStop.stop_name === stop.stop_name) {
+								collectedStop = collect(gtfsStop, stop)
+								console.log('### colect ###')
+								selectedRoute.collectedStops.push(collectedStop);
+								// $scope.$apply();
+							}
+						})
 					}
 				})
-			
+
+
+				selectedRoute.collectedStops.push(collectedStop);
+				console.log('collectedStops: ', collectedStops)
 			});
 
 
@@ -742,7 +793,6 @@ angular.module('transitApp')
 
 	vm.testFunction = function() {
 		console.log('hello world!');
-		$('#routesContainer').slideUp();
 	};
 
 }]);
