@@ -11,7 +11,10 @@
 			<button class="col-sm-12 btn route-button"
 				ng-style="vm.setColor(route)"
 				ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1, notFirst: !$first}"
-				ng-click="vm.selectRoute(route)">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
+				ng-click="vm.selectRoute(route); route.active = !route.active">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
+			<div class="route-stops-list" ng-show="route.active === true">
+				stops go here
+			</div>
 		</li>
 	</ul>
 
