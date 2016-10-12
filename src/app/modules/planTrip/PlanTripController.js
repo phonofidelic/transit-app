@@ -469,6 +469,7 @@ angular.module('transitApp')
 				});
 
 				vm.routes = routes;
+				$scope.$apply();
 				return vm.routes;
 			}).then(function(routes) {
 
