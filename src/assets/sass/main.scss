@@ -60,7 +60,7 @@ li.location-suggestion {
   // right: 0;
   margin: 0px;
   padding: 0px;
-  background: $primary-color-light;
+  background: #fff;
   min-height: 50px;
   // position: absolute;
 }
@@ -80,6 +80,39 @@ li.location-suggestion {
   height: 50px;
   border-radius: 0px;
   color: #fff;
+}
+
+.route-stops-list {
+    // position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200;
+    padding:10px;
+    background: #fff;
+    z-index:  1000;
+    // transition:0.5s linear all;
+  // opacity:0;
+}
+/* The starting CSS styles for the enter animation */
+.route-stops-list.ng-enter {
+  transition:0.5s ease-out all;
+  opacity:0;
+}
+
+/* The finishing CSS styles for the enter animation */
+.route-stops-list.ng-enter.ng-enter-active {
+  opacity:1;
+}
+
+.stop-item {
+  margin: 0px;
+  padding: 0px;
+}
+
+.stop-marker {
+  position: fixed;
+  height: 100%;
 }
 
 li {

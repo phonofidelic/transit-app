@@ -711,7 +711,7 @@ angular.module('transitApp')
 			vm.selectedRoute = selectedRoute;
 
 			_addMarkers(vm.selectedRoute.collectedStops);
-			$scope.$apply();
+			// $scope.$apply();
 		}).catch(function(err) {
 			console.error('could collect stops data: ', err);
 		});
