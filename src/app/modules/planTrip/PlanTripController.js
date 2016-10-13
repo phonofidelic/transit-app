@@ -614,19 +614,20 @@ angular.module('transitApp')
 	};
 
 	function _addMarkers(stops) {
+		console.log('### stops ###', stops)
 		var stopCoords = [];
 		var latLngs = [];
 		stops.forEach(function(stop) {
-			if (stop.stop_lat && stop.stop_lon) {
+			// if (stop.stop_lat && stop.stop_lon) {
 				var latlng = L.latLng(stop.stop_lat, stop.stop_lon);
-			}
+			// }
 			latLngs.push(latlng);
 		});
 		latLngs.forEach(function(latLng) {
 			L.marker(latLng).addTo(map);
 			console.log('@@@')
 		});
-		console.log('### add marker ###')
+		console.log('### add marker ###', stops)
 	};
 
 	function _checkScroll() {
@@ -710,13 +711,15 @@ angular.module('transitApp')
 			// set currently selected route
 			vm.selectedRoute = selectedRoute;
 
-			_addMarkers(vm.selectedRoute.collectedStops);
+			console.log('### sending: ', selectedRoute)
+			// _addMarkers(selectedRoute);
 			// $scope.$apply();
+			return selectedRoute;
+		}).then(function(selectedRoute) {
+			_addMarkers(selectedRoute.collectedStops);
 		}).catch(function(err) {
 			console.error('could collect stops data: ', err);
 		});
-
-		var selectedTrips = [];
 
 		console.log('selectedRoute: ', selectedRoute);
 

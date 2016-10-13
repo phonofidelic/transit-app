@@ -50,12 +50,19 @@ li.location-suggestion {
   border-radius: 0px;
   color: #fff; }
 
+.route-button:focus {
+  outline: 0; }
+
+.route-button:active {
+  outline: 50; }
+
 .route-stops-list {
   bottom: 0;
   left: 0;
   right: 0;
   height: 200;
   padding: 10px;
+  padding-top: 0px;
   background: #fff;
   z-index: 1000; }
 
@@ -69,11 +76,13 @@ li.location-suggestion {
   opacity: 1; }
 
 .stop-item {
-  margin: 0px;
-  padding: 0px; }
+  margin: 10px;
+  padding: 0px;
+  padding-left: 20px; }
 
 .stop-marker {
-  position: fixed;
+  position: relative;
+  left: 20;
   height: 100%; }
 
 li {
