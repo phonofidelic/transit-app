@@ -19,7 +19,7 @@
 					     class="stop-marker"
 					     xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="black" /></svg> -->
 				<ul>
-					<li ng-repeat="stop in vm.selectedRoute.collectedStops" class="stop-item" style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}}</li>
+					<li ng-repeat="stop in vm.selectedRoute.collectedStops | limitTo: 10" class="stop-item" style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}}</li>
 				</ul>
 			</div>
 		</li>
