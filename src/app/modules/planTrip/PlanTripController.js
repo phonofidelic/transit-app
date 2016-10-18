@@ -588,7 +588,7 @@ angular.module('transitApp')
 		return map;
 	};
 
-	var markersAdded;
+	var markersAdded = false;
 	var markerLayer;
 	function _addMarkers(stops) {
 		if (markersAdded) {
@@ -610,6 +610,7 @@ angular.module('transitApp')
 		console.log('### add marker ###', markersAdded)
 		markersAdded = true;
 		map.addLayer(markerLayer);
+		$scope.$apply();
 	};
 
 	function _checkScroll() {
@@ -687,7 +688,7 @@ angular.module('transitApp')
 
 			// set currently selected route
 			vm.selectedRoute = selectedRoute;
-			// $scope.$apply();
+			
 			return selectedRoute;
 		}).then(function(selectedRoute) {
 			_addMarkers(selectedRoute.collectedStops);
