@@ -70,7 +70,7 @@ self.addEventListener('fetch', function(event) {
 					console.error('Fetch from network failed: ', err);
 					throw err;
 				});
-			})
+			})//
 		);
 	}
 });

@@ -17,14 +17,6 @@ angular.module('transitApp')
 	var transitService = new TransitLandRequestService();
 	var gtfsParserService = new GTFSParserService();
 	var jsZip = new JSZip();
-	// vm.routes = [
-	// 	{
-	// 		onestop_id: "r-dhwu-06",
-	// 		route_color: "9F218B",
-	// 		route_short_name: "06"
-	// 	}
-	// ];
-
 	var map = L.map('map', {
 		scrollWheelZoom: false
 		// zoom: 1
@@ -197,10 +189,6 @@ angular.module('transitApp')
 		// registerServiceWorker();
 	// };
 
-	vm.deleteObjectStore = function(objectStore) {
-
-	}
-
 	// GTFS data request
 	function gtfsData(file) {
 		var url = 'assets/transitData/google_transit.zip';		//**************************** !!!hardcoded!!!
@@ -231,6 +219,27 @@ angular.module('transitApp')
 			});
 		});
 	};
+
+	function storeTrips(selectedRoute) {
+		gtfsData('trips.txt').then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var tx = db.transaction('trips', 'readwrite');
+				var store = tx.objectStore('trips');
+
+				transitData.forEach(function(transitDataItem) {
+					if (selectedRoute.route_id === transitDataItem.route_id) {
+						store.put(transitDataItem);
+					}
+				});
+			}).catch(function(err) {
+				console.error('Could not store trips for selected route:', err);
+			});
+		}).catch(function(err) {
+			console.error('Error reading trips.txt:', err);
+		});
+	}
 
 	// Retrieve list of routes serviced by operator 
 	vm.transitRequest = function(region) {
@@ -506,13 +515,13 @@ angular.module('transitApp')
 									idbItem.onestop_id = transitlandItem.onestop_id;
 
 									// combine transitland and gtfs data
-									var combinedObj = collect(idbItem, transitlandItem);	// BUG - 
+									var combinedObj = collect(idbItem, transitlandItem);
 									selectedRoutes.push(combinedObj);
 								}
 							});
 						});
 						vm.routes = selectedRoutes;
-						$scope.$apply();						// BUG: selectedRoutes does not include first item in routes array
+						$scope.$apply();						
 						console.log('*** vm.routes2: ', vm.routes)
 			
 						var tx = db.transaction('routes', 'readwrite');
@@ -522,50 +531,6 @@ angular.module('transitApp')
 						});
 
 						return selectedRoutes;
-					}).then(function(selectedRoutes) {
-						gtfsData('trips.txt').then(function(transitData) {
-							vm.dbPromise.then(function(db) {
-								if (!db) return;
-
-								var selectedTrips = [];
-								
-
-								selectedRoutes.forEach(function(item) {
-									transitData.forEach(function(item2) {
-										if (item2.route_id === item.route_id) {
-											selectedTrips.push(item2);
-										}
-									});
-								});
-
-								// console.log('## selectedTrips: ', selectedTrips)
-
-								var tx = db.transaction('trips', 'readwrite');
-								var store = tx.objectStore('trips');
-								selectedTrips.forEach(function(trip) {
-									store.put(trip);
-								});
-								return selectedTrips;
-							})
-							// .then(function(selectedTrips) {
-							// 	gtfsData('stop_times.txt').then(function(transitData) {
-							// 		vm.dbPromise.then(function(db) {
-							// 			if (!db) return;
-
-							// 			var selectedStopTimes = [];
-
-							// 			selectedTrips.forEach(function(selectedTrip) {
-							// 				transitData.forEach(function(trip) {
-							// 					if (trip.trip_id === selectedTrip.trip_id) {
-							// 						selectedStopTimes.push(trip);
-							// 					}
-							// 				});
-							// 			});
-							// 			console.log('*** selectedStopTimes: ', selectedStopTimes)
-							// 		});
-							// 	});
-							// });
-						});
 					});
 				});
 			}).catch(function(err) {
@@ -692,8 +657,9 @@ angular.module('transitApp')
 			return selectedRoute;
 		}).then(function(selectedRoute) {
 			_addMarkers(selectedRoute.collectedStops);
+			storeTrips(selectedRoute);
 		}).catch(function(err) {
-			console.error('could collect stops data: ', err);
+			console.error('Could not collect stops data: ', err);
 		});
 
 		console.log('selectedRoute: ', selectedRoute);
@@ -760,6 +726,13 @@ angular.module('transitApp')
 			console.log('selected db route: ', route)
 		})
 	};
+
+	vm.transitionToMap = function() {
+		$('body').scrollTop(0);
+		console.log('scroll top')
+	}
+
+
 
 	vm.testFunction = function() {
 		console.log('hello world!');
