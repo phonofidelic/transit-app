@@ -123,8 +123,8 @@ gulp.task('depsStandalone', function() {
 gulp.task('assets', function() {
 	// gulp.src('src/lib/leaflet-geocoder-mapzen/dist/images/search@2x.png')
 	// .pipe(gulp.dest('dist/leaflet-geocoder-mapzen/src/images'));
-	gulp.src('src/assets/transitData/*.zip')
-	.pipe(gulp.dest('dist/assets/transitData'));
+	gulp.src(['src/assets/**/*', '!src/assets/sass'])
+	.pipe(gulp.dest('dist/assets/'));
 });	
 
 /**

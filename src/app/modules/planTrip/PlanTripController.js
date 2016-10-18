@@ -203,7 +203,7 @@ angular.module('transitApp')
 
 	// GTFS data request
 	function gtfsData(file) {
-		var url = 'assets/transitData/gtfsPortland.zip';		//**************************** !!!hardcoded!!!
+		var url = 'assets/transitData/google_transit.zip';		//**************************** !!!hardcoded!!!
 		var file = file;
 
 		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
@@ -414,6 +414,8 @@ angular.module('transitApp')
 
 		// gets current position and initializez map with those coords
 		locationService.getCurrentPosition().then(function(position) {
+		// locationService.getStaticPosition().then(function(position) {	//**************************** mock data
+			console.log('position:', position)
 			map.setView([position.coords.latitude, position.coords.longitude], 14);
 
 			// setBboxLine(position);
@@ -427,13 +429,14 @@ angular.module('transitApp')
 			}
 			// TODO: check for rout data in db before making network request
 			transitService.routesByBbox(coords).then(function(response) {
-				var routes = response.routes;
-				// vm.routes = response.routes.filter(function(route) {
-				// 	var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
-				// 	if (route.operated_by_onestop_id === operators[0]) {	//************************ !!!hardcoded!!!
-				// 		return route;
-				// 	}
-				// });
+			// transitService.getStaticRoutes().then(function(response) {	//**************************** mock data
+				// var routes = response.routes;
+				var routes = response.routes.filter(function(route) {
+					var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
+					if (route.operated_by_onestop_id === operators[1]) {	//************************ !!!hardcoded!!!
+						return route;
+					}
+				});
 
 				vm.currentPosition.countyString = routes[0].operated_by_onestop_id;
 
@@ -481,7 +484,6 @@ angular.module('transitApp')
 						if (!db) return;
 
 						var selectedRoutes = [];
-						var testRoutes = [];
 
 						// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
 						function collect() {
@@ -504,13 +506,13 @@ angular.module('transitApp')
 									idbItem.onestop_id = transitlandItem.onestop_id;
 
 									// combine transitland and gtfs data
-									var combinedObj = collect(idbItem, transitlandItem);
+									var combinedObj = collect(idbItem, transitlandItem);	// BUG - 
 									selectedRoutes.push(combinedObj);
 								}
 							});
 						});
 						vm.routes = selectedRoutes;
-
+						$scope.$apply();						// BUG: selectedRoutes does not include first item in routes array
 						console.log('*** vm.routes2: ', vm.routes)
 			
 						var tx = db.transaction('routes', 'readwrite');
@@ -573,33 +575,6 @@ angular.module('transitApp')
 			console.log('getPosition error: ', err);
 		});	
 
-		// add stop markers
-		// gtfsData('stops.txt').then(function(stops) {
-		// 	var stopCoords = [];
-		// 	var latLngs = [];
-		// 	stops.forEach(function(stop){
-		// 		// console.log('stop: ', stop.stop_lat)
-		// 		if (stop.stop_lat && stop.stop_lon) {
-		// 			var latlng = L.latLng(stop.stop_lat, stop.stop_lon);	
-		// 		}				
-		// 		latLngs.push(latlng);
-		// 	});
-		// 	console.log('latLngs: ', latLngs)
-		// 	return latLngs;
-		// }).then(function(latLngs) {
-			
-		// 	latLngs.forEach(function(latLng) {
-		// 		L.marker(latLng).addTo(map)
-		// 	});
-		// });
-
-		// add route line
-		// var routeLine = L.polyline()
-
-
-
-		// var geocode = L.control.geocoder('search-3LVgAzp').addTo(map);
-
 		/* Leaflet.Locate
 			https://github.com/domoritz/leaflet-locatecontrol
 		 */
@@ -642,15 +617,10 @@ angular.module('transitApp')
 		var secondItem = $('.routeButtonSecond');
 		var firstItem = $('.routeButtonFirst');
 
-		console.log('secondItem: ', secondItem)
-		console.log('firstItem: ', firstItem)
-
-		if (secondItem.offset().top < firstItem.offset().top) {
-			// $('.notFirst').css('visibility', 'hidden');
-		}
+		// if (secondItem.offset().top < firstItem.offset().top) {
+		// 	// $('.notFirst').css('visibility', 'hidden');
+		// }
 		window.onscroll = function() {
-
-
 			if (firstItem.offset().top >= secondItem.offset().top) {
 				firstItem.removeClass('stuck');
 			}

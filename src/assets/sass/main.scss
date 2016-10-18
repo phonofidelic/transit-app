@@ -23,11 +23,17 @@ body {
 #map {
 	height: 500px;
 	width: 100%;
+
 	// position: absolute;
 }
 
 .main {
   padding: 0px;
+}
+
+.map-container {
+  // position: fixed;
+  // z-index: 2001;
 }
 
 li.location-suggestion {

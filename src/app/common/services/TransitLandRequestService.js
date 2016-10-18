@@ -61,6 +61,13 @@ angular.module('transitApp').factory('TransitLandRequestService', ['$http', func
 		});
 	};
 
+	TransitLandRequestService.prototype.getStaticRoutes = function() {
+		return $http.get('assets/mockData/staticRoutesPortland.json').then(function(response) {
+			console.log('mock routes:', response)
+			return response.data;
+		});
+	};
+
 	TransitLandRequestService.prototype.getStopInfo = function(onestop_id) {
 		var url = 'http://transit.land/api/v1/stops?onestop_id='+onestop_id;
 

@@ -7,6 +7,12 @@ angular.module('transitApp').factory('LocationService', ['$http', function($http
 			navigator.geolocation.getCurrentPosition(resolve, reject, options);
 		});
 	};
+	LocationService.prototype.getStaticPosition = function() {
+		return $http.get('assets/mockData/staticCoordsVancouver.json').then(function(position) {
+			console.log('position##', position)
+			return position.data;
+		}); 
+	};
 	LocationService.prototype.revGeocode = function(position) {
 		var latlng = {};
 		latlng.lat = position.latitude;

@@ -1,20 +1,30 @@
-var staticCacheName = 'transit-static-v4';
+var staticCacheName = 'transit-static-v5';
+var sources = [
+				[
+					'/',
+					'css/main.min.css',
+					'app/app.min.js',
+					'lib/deps.min.js',
+					'css/deps.min.css',
+					'app/templates/planTrip.html',
+					'https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css',
+					'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
+				],
+				[
+					'/',
+					'css/main.css',
+					'app/templates/planTrip.html',
+					'https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css',
+					'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
+				]
+			]
 
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
-			return cache.addAll([
-				'/',
-				'css/main.min.css',
-				'app/app.min.js',
-				'lib/deps.min.js',
-				'css/deps.min.css',
-				'app/templates/planTrip.html'
-				// 'https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css',
-				// 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
-			]);
+			return cache.addAll(sources[1]);
 		})
-	);//
+	);
 });
 
 self.addEventListener('activate', function(event) {

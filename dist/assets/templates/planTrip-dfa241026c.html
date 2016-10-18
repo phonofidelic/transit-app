@@ -1,0 +1,38 @@
+<div class="container main" ng-init="vm.getCurrentPosition(); vm.init()">
+
+	<div class="row">
+		<div class="col-sm-12 map-container">
+			<div id="map" ng-init="vm.initMap()"></div>
+		</div>
+	</div>
+
+	<ul class="route-list" id="routesContainer">
+		<li ng-repeat="route in vm.routes" class="route-button-container">
+			<button class="col-sm-12 btn route-button"
+				ng-style="vm.setColor(route)"
+				ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1, notFirst: !$first}"
+				ng-click="vm.selectRoute(route); route.active = !route.active">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
+			<div class="route-stops-list" ng-if="route.active === true">
+<!-- 				<svg version="1.1"
+					     baseProfile="full"
+					     width="10" height="100%"
+					     class="stop-marker"
+					     xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="black" /></svg> -->
+				<ul>
+					<li ng-repeat="stop in vm.selectedRoute.collectedStops | limitTo: 10" class="stop-item" style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}}</li>
+				</ul>
+			</div>
+		</li>
+	</ul>
+
+	<div class="update-alert" ng-if="vm.showToast">
+		<span>An update is ready</span>
+		<span>
+			<button type="button" class="btn btn-default" ng-click="vm.skipWaiting()">refresh</button>
+		</span>
+		<span>
+			<button type="button" class="btn btn-default" ng-click="vm.showToast = false">dismiss</button>
+		</span>
+	</div>
+
+</div>
