@@ -239,7 +239,58 @@ angular.module('transitApp')
 		}).catch(function(err) {
 			console.error('Error reading trips.txt:', err);
 		});
-	}
+	};
+
+	function storeRoutes(routes) {
+		// *** populate db with routes ***
+		gtfsData('routes.txt').then(function(transitData) {
+			vm.dbPromise.then(function(db) {
+				if (!db) return;
+
+				var selectedRoutes = [];
+
+				// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
+				function collect() {
+					var ret = {};
+					var len = arguments.length;
+					for (var i = 0; i < len; i++) {
+						for (p in arguments[i]) {
+							if (arguments[i].hasOwnProperty(p)) {
+								ret[p] = arguments[i][p];
+							}
+						}
+					}
+					return ret;
+				};
+
+				routes.forEach(function(transitlandItem) {
+					transitData.forEach(function(idbItem) {
+						if (transitlandItem.name === idbItem.route_short_name) {
+							// transfer data from transitland to stored db entry
+							idbItem.onestop_id = transitlandItem.onestop_id;
+
+							// combine transitland and gtfs data
+							var combinedObj = collect(idbItem, transitlandItem);
+							selectedRoutes.push(combinedObj);
+						}
+					});
+				});
+				vm.routes = selectedRoutes;
+				$scope.$apply();						
+				console.log('*** vm.routes2: ', vm.routes)
+	
+				var tx = db.transaction('routes', 'readwrite');
+				var store = tx.objectStore('routes');
+				selectedRoutes.forEach(function(item) {
+					store.put(item);
+				});
+
+				return selectedRoutes;
+			});
+		}).catch(function(err) {
+			console.error('Could not read gtfs data from routes.txt:', err);
+		});
+	};
 
 	// Retrieve list of routes serviced by operator 
 	vm.transitRequest = function(region) {
@@ -408,11 +459,11 @@ angular.module('transitApp')
 	}
 
 	vm.init = function() {
-		registerServiceWorker();
+		// registerServiceWorker();
 	};
 
 	vm.initMap = function() {
-		// registerServiceWorker();
+		registerServiceWorker();
 
 		// Tangram map
 		var layer = Tangram.leafletLayer({
@@ -484,57 +535,10 @@ angular.module('transitApp')
 				$scope.$apply();	//*************** needed to update view with new model state
 				return vm.routes;
 			}).then(function(routes) {
-
 				_checkScroll();
-
-				// *** populate db with routes ***
-				gtfsData('routes.txt').then(function(transitData) {
-					vm.dbPromise.then(function(db) {
-						if (!db) return;
-
-						var selectedRoutes = [];
-
-						// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
-						function collect() {
-							var ret = {};
-							var len = arguments.length;
-							for (var i = 0; i < len; i++) {
-								for (p in arguments[i]) {
-									if (arguments[i].hasOwnProperty(p)) {
-										ret[p] = arguments[i][p];
-									}
-								}
-							}
-							return ret;
-						};
-
-						routes.forEach(function(transitlandItem) {
-							transitData.forEach(function(idbItem) {
-								if (transitlandItem.name === idbItem.route_short_name) {
-									// transfer data from transitland to stored db entry
-									idbItem.onestop_id = transitlandItem.onestop_id;
-
-									// combine transitland and gtfs data
-									var combinedObj = collect(idbItem, transitlandItem);
-									selectedRoutes.push(combinedObj);
-								}
-							});
-						});
-						vm.routes = selectedRoutes;
-						$scope.$apply();						
-						console.log('*** vm.routes2: ', vm.routes)
-			
-						var tx = db.transaction('routes', 'readwrite');
-						var store = tx.objectStore('routes');
-						selectedRoutes.forEach(function(item) {
-							store.put(item);
-						});
-
-						return selectedRoutes;
-					});
-				});
+				storeRoutes(routes);
 			}).catch(function(err) {
-				console.error('*** request error: ', err)
+				console.error('transitService.routesByBbox request error: ', err);
 			});
 		}).catch(function(err) {
 			console.log('getPosition error: ', err);
@@ -555,13 +559,18 @@ angular.module('transitApp')
 
 	var markersAdded = false;
 	var markerLayer;
-	function _addMarkers(stops) {
+	function _addMarkers(stops, color) {
 		if (markersAdded) {
 			map.removeLayer(markerLayer);	
 		}
 		
 		markerLayer = new L.FeatureGroup();
 		var latLngs = [];
+		var vectorMarker = L.VectorMarkers.icon({
+			icon: 'bus',
+			markerColor: '#'+color,
+			prefix: 'fa'
+		});
 		stops.forEach(function(stop) {
 			// if (stop.stop_lat && stop.stop_lon) {
 				var latlng = L.latLng(stop.stop_lat, stop.stop_lon);
@@ -570,7 +579,7 @@ angular.module('transitApp')
 		});
 		latLngs.forEach(function(latLng) {
 			// L.marker(latLng).addTo(map);
-			markerLayer.addLayer(L.marker(latLng));
+			markerLayer.addLayer(L.marker(latLng, {icon: vectorMarker}));
 		});
 		console.log('### add marker ###', markersAdded)
 		markersAdded = true;
@@ -656,7 +665,7 @@ angular.module('transitApp')
 			
 			return selectedRoute;
 		}).then(function(selectedRoute) {
-			_addMarkers(selectedRoute.collectedStops);
+			_addMarkers(selectedRoute.collectedStops, selectedRoute.color);
 			storeTrips(selectedRoute);
 		}).catch(function(err) {
 			console.error('Could not collect stops data: ', err);

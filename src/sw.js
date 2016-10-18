@@ -18,7 +18,7 @@ var sources = [
 					// 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
 				]
 			];
-//
+
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
@@ -70,7 +70,7 @@ self.addEventListener('fetch', function(event) {
 					console.error('Fetch from network failed: ', err);
 					throw err;
 				});
-			})//
+			})
 		);
 	}
 });

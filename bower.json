@@ -32,7 +32,8 @@
     "jszip": "Stuk/jszip#^3.1.2",
     "angular-touch": "^1.5.8",
     "angular-swipe": "^0.1.0",
-    "randomcolor": "randomColor#^0.4.4"
+    "randomcolor": "randomColor#^0.4.4",
+    "Leaflet.vector-markers": "^0.0.6"
   },
   "resolutions": {
     "angular": "^1.5.7"

@@ -21,7 +21,8 @@ body {
 }
 
 #map {
-	height: 500px;
+	// height: 500px;
+  height: 100vh;
 	width: 100%;
 
 	// position: absolute;
@@ -34,6 +35,7 @@ body {
 .map-container {
   // position: fixed;
   // z-index: 2001;
+
 }
 
 li.location-suggestion {
