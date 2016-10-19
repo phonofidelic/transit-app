@@ -292,6 +292,65 @@ angular.module('transitApp')
 		});
 	};
 
+	function _getRoutes(position) {
+		var coords = {
+			lat: position.coords.latitude,
+			lon: position.coords.longitude
+		}
+		transitService.routesByBbox(coords).then(function(response) {
+		// transitService.getStaticRoutes().then(function(response) {	//**************************** mock data
+			// var routes = response.routes;
+			var routes = response.routes.filter(function(route) {
+				var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
+				if (route.operated_by_onestop_id === operators[1]) {	//************************ !!!hardcoded!!!
+					return route;
+				}
+			});
+
+			vm.currentPosition.countyString = routes[0].operated_by_onestop_id;
+
+			// updates view to with routes data
+			// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
+			$scope.$apply();
+			console.log('*** routes: ', routes);
+			
+			routes.forEach(function(route) {
+					
+				var routeColor; 
+				if (route.color === null || route.color === undefined) {
+					var color = randomColor({
+						luminosity: 'bright'
+						// hue: 'random'
+					});
+					color = color.replace('#', '');
+					route.color = color;
+					// $scope.$apply();
+				}
+
+				var lines = route.geometry.coordinates;
+
+				lines.forEach(function(line) {
+					var latLngs = [];
+					line.forEach(function(coord) {
+						latLngs.push(L.latLng(coord[1], coord[0]));
+					});
+					// add line to map
+					var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
+					// map.fitBounds(routeLine.getBounds());
+				});
+			});
+
+			vm.routes = routes;
+			$scope.$apply();	//*************** needed to update view with new model state
+			return vm.routes;
+		}).then(function(routes) {
+			_checkScroll();
+			storeRoutes(routes);
+		}).catch(function(err) {
+			console.error('transitService.routesByBbox request error: ', err);
+		});
+	}
+
 	// Retrieve list of routes serviced by operator 
 	vm.transitRequest = function(region) {
 		transitService.routesByOperator(region).then(function(response) {
@@ -483,63 +542,65 @@ angular.module('transitApp')
 			return position;
 		}).then(function(position) {
 			console.log('*** position: ', position);
-			var coords = {
-				lat: position.coords.latitude,
-				lon: position.coords.longitude
-			}
+
+			_getRoutes(position);
+			// var coords = {
+			// 	lat: position.coords.latitude,
+			// 	lon: position.coords.longitude
+			// }
 			// TODO: check for rout data in db before making network request
-			transitService.routesByBbox(coords).then(function(response) {
-			// transitService.getStaticRoutes().then(function(response) {	//**************************** mock data
-				// var routes = response.routes;
-				var routes = response.routes.filter(function(route) {
-					var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
-					if (route.operated_by_onestop_id === operators[1]) {	//************************ !!!hardcoded!!!
-						return route;
-					}
-				});
+			// transitService.routesByBbox(coords).then(function(response) {
+			// // transitService.getStaticRoutes().then(function(response) {	//**************************** mock data
+			// 	// var routes = response.routes;
+			// 	var routes = response.routes.filter(function(route) {
+			// 		var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
+			// 		if (route.operated_by_onestop_id === operators[1]) {	//************************ !!!hardcoded!!!
+			// 			return route;
+			// 		}
+			// 	});
 
-				vm.currentPosition.countyString = routes[0].operated_by_onestop_id;
+			// 	vm.currentPosition.countyString = routes[0].operated_by_onestop_id;
 
-				// updates view to with routes data
-				// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
-				$scope.$apply();
-				console.log('*** routes: ', routes);
+			// 	// updates view to with routes data
+			// 	// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
+			// 	$scope.$apply();
+			// 	console.log('*** routes: ', routes);
 				
-				routes.forEach(function(route) {
+			// 	routes.forEach(function(route) {
 						
-					var routeColor; 
-					if (route.color === null || route.color === undefined) {
-						var color = randomColor({
-							luminosity: 'bright'
-							// hue: 'random'
-						});
-						color = color.replace('#', '');
-						route.color = color;
-						// $scope.$apply();
-					}
+			// 		var routeColor; 
+			// 		if (route.color === null || route.color === undefined) {
+			// 			var color = randomColor({
+			// 				luminosity: 'bright'
+			// 				// hue: 'random'
+			// 			});
+			// 			color = color.replace('#', '');
+			// 			route.color = color;
+			// 			// $scope.$apply();
+			// 		}
 
-					var lines = route.geometry.coordinates;
+			// 		var lines = route.geometry.coordinates;
 
-					lines.forEach(function(line) {
-						var latLngs = [];
-						line.forEach(function(coord) {
-							latLngs.push(L.latLng(coord[1], coord[0]));
-						});
-						// add line to map
-						var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
-						// map.fitBounds(routeLine.getBounds());
-					});
-				});
+			// 		lines.forEach(function(line) {
+			// 			var latLngs = [];
+			// 			line.forEach(function(coord) {
+			// 				latLngs.push(L.latLng(coord[1], coord[0]));
+			// 			});
+			// 			// add line to map
+			// 			var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
+			// 			// map.fitBounds(routeLine.getBounds());
+			// 		});
+			// 	});
 
-				vm.routes = routes;
-				$scope.$apply();	//*************** needed to update view with new model state
-				return vm.routes;
-			}).then(function(routes) {
-				_checkScroll();
-				storeRoutes(routes);
-			}).catch(function(err) {
-				console.error('transitService.routesByBbox request error: ', err);
-			});
+			// 	vm.routes = routes;
+			// 	$scope.$apply();	//*************** needed to update view with new model state
+			// 	return vm.routes;
+			// }).then(function(routes) {
+			// 	_checkScroll();
+			// 	storeRoutes(routes);
+			// }).catch(function(err) {
+			// 	console.error('transitService.routesByBbox request error: ', err);
+			// });
 		}).catch(function(err) {
 			console.log('getPosition error: ', err);
 		});	
