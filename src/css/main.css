@@ -62,7 +62,6 @@ li.location-suggestion {
   right: 0;
   height: 200;
   padding: 10px;
-  padding-top: 0px;
   background: #fff;
   z-index: 1000; }
 
@@ -97,6 +96,10 @@ li {
   height: 50;
   padding: 10px;
   z-index: 1000; }
+
+.loading-img {
+  width: 54px;
+  margin: 0 auto; }
 
 /*
  * transition for notification popup

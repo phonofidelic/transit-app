@@ -257,6 +257,8 @@ angular.module('transitApp')
 			var store = tx.objectStore('trips');
 			var tripIndex = store.index('by-route-id');
 
+			vm.tripsLoading = true;
+			$scope.$apply();
 			return tripIndex.openCursor();
 		}).then(function(cursor) {
 			if (!cursor) return;
@@ -270,6 +272,8 @@ angular.module('transitApp')
 			return cursor.continue().then(storeValue);	
 		}).then(function() {
 			console.log('done cusoring:');
+			vm.tripsLoading = false;
+			$scope.$apply();
 			console.log(selectedRoute);
 		}).catch(function(err) {
 			console.error('IDB cursor error:', err);
