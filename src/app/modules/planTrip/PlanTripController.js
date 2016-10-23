@@ -30,6 +30,9 @@ angular.module('transitApp')
 	vm.inputData.arrival = {};
 	vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
+
+	vm.currentTime = moment().format('hh:mm:ss');
+	console.log('current time:', vm.currentTime)
 	// vm.routes = [];
 	var _dbPromise = openDatabase();
 
@@ -257,7 +260,7 @@ angular.module('transitApp')
 			var store = tx.objectStore('trips');
 			var tripIndex = store.index('by-route-id');
 
-			vm.tripsLoading = true;
+			// vm.tripsLoading = true;
 			$scope.$apply();
 			return tripIndex.openCursor();
 		}).then(function(cursor) {
@@ -333,20 +336,6 @@ angular.module('transitApp')
 
 				var selectedRoutes = [];
 
-				// *** source ***	 http://stackoverflow.com/questions/2454295/how-to-concatenate-properties-from-multiple-javascript-objects
-				function collect() {
-					var ret = {};
-					var len = arguments.length;
-					for (var i = 0; i < len; i++) {
-						for (p in arguments[i]) {
-							if (arguments[i].hasOwnProperty(p)) {
-								ret[p] = arguments[i][p];
-							}
-						}
-					}
-					return ret;
-				};
-
 				routes.forEach(function(transitlandItem) {
 					transitData.forEach(function(idbItem) {
 						if (transitlandItem.name === idbItem.route_short_name) {
@@ -398,6 +387,7 @@ angular.module('transitApp')
 			$scope.$apply();
 			console.log('*** routes: ', routes);
 			
+			// set up each route
 			routes.forEach(function(route) {
 					
 				var routeColor; 
@@ -422,6 +412,8 @@ angular.module('transitApp')
 					var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
 					// map.fitBounds(routeLine.getBounds());
 				});
+
+				route.active = false;
 			});
 
 			vm.routes = routes;
@@ -720,6 +712,7 @@ angular.module('transitApp')
 	vm.selectRoute = function(selectedRoute) {
 		// add stops
 
+		
 		// get stops data from gtfs
 		_gtfsData('stops.txt').then(function(transitData) {
 			function findStopInRoute(routeStops, gtfsStop) {
@@ -736,15 +729,13 @@ angular.module('transitApp')
 				var store = tx.objectStore('stops');
 				
 				transitData.forEach(function(gtfsStop) {
-					// console.log('findStopInRoute: ', findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop))
-					
 					if (findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop)) {
-						store.put(gtfsStop);
+						// store.put(gtfsStop);
 						selectedRoute.stops_served_by_route.forEach(function(stop) {
 							if (gtfsStop.stop_name === stop.stop_name) {
-								collectedStop = collect(gtfsStop, stop)
-								// console.log('### colect ###')
+								var collectedStop = collect(gtfsStop, stop)
 								selectedRoute.collectedStops.push(collectedStop);
+								store.put(collectedStop);
 							}
 						});
 					}
@@ -763,6 +754,7 @@ angular.module('transitApp')
 		});
 
 		console.log('selectedRoute: ', selectedRoute);
+
 
 		// _dbPromise.then(function(db) {
 		// 	var tx = db.transaction('trips');
