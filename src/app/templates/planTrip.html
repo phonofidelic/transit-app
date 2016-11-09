@@ -19,7 +19,10 @@
 					<span class="sr-only">Loading...</span>
 				</div>
 				<ul>
-					<li ng-show="!vm.tripsLoading" ng-repeat="stop in vm.selectedRoute.collectedStops | limitTo: 10" class="stop-item" style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}}</li>
+					<li ng-show="!vm.tripsLoading" 
+						ng-repeat="stop in vm.selectedRoute.collectedStops | limitTo: 10" 
+						class="stop-item" 
+						style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}} {{stop.stopTimes[0].departure_time}}</li>
 				</ul>
 			</div>
 		</li>

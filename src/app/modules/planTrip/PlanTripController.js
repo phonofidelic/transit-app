@@ -58,6 +58,7 @@ angular.module('transitApp')
 						keyPath: 'stop_id'
 					});
 					stopTimesStore.createIndex('by-trip-id', 'trip_id');
+					stopTimesStore.createIndex('by-stop-id', 'stop_id');
 				case 3:
 					var routesStore = upgradeDb.createObjectStore('routes', {
 						keyPath: 'onestop_id'
@@ -350,7 +351,7 @@ angular.module('transitApp')
 				});
 				vm.routes = selectedRoutes;
 				$scope.$apply();						
-				console.log('*** vm.routes2: ', vm.routes)
+				console.log('*** vm.routes: ', vm.routes)
 	
 				var tx = db.transaction('routes', 'readwrite');
 				var store = tx.objectStore('routes');
@@ -385,7 +386,7 @@ angular.module('transitApp')
 			// updates view to with routes data
 			// http://stackoverflow.com/questions/15475601/angularjs-ng-repeat-list-is-not-updated-when-a-model-element-is-spliced-from-th
 			$scope.$apply();
-			console.log('*** routes: ', routes);
+			// console.log('*** routes: ', routes);
 			
 			// set up each route
 			routes.forEach(function(route) {
@@ -710,8 +711,8 @@ angular.module('transitApp')
 	};
 
 	vm.selectRoute = function(selectedRoute) {
-		// add stops
-
+		// set currently selected route
+		vm.selectedRoute = selectedRoute;
 		
 		// get stops data from gtfs
 		_gtfsData('stops.txt').then(function(transitData) {
@@ -725,12 +726,12 @@ angular.module('transitApp')
 			
 			selectedRoute.collectedStops = [];
 			_dbPromise.then(function(db) {
+				if (!db) return;
 				var tx = db.transaction('stops', 'readwrite');
 				var store = tx.objectStore('stops');
 				
 				transitData.forEach(function(gtfsStop) {
 					if (findStopInRoute(selectedRoute.stops_served_by_route, gtfsStop)) {
-						// store.put(gtfsStop);
 						selectedRoute.stops_served_by_route.forEach(function(stop) {
 							if (gtfsStop.stop_name === stop.stop_name) {
 								var collectedStop = collect(gtfsStop, stop)
@@ -741,67 +742,54 @@ angular.module('transitApp')
 					}
 				});
 			});
-
-			// set currently selected route
-			vm.selectedRoute = selectedRoute;
 			
 			return selectedRoute;
 		}).then(function(selectedRoute) {
 			_addMarkers(selectedRoute.collectedStops, selectedRoute.color);
 			_storeTrips(selectedRoute);
-		}).catch(function(err) {
+			return selectedRoute;
+		})
+		// .then(function(selectedRoute) {	//**************** stop times
+		// 	selectedRoute.collectedStops.forEach(function(stop) {
+		// 		stop.stopTimes = [];	
+		// 	});
+			
+		// 	_dbPromise.then(function(db) {
+		// 		if (!db) return;
+		// 		var tx = db.transaction('stop_times');
+		// 		var store = tx.objectStore('stop_times');
+		// 		var timeIndex = store.index('by-trip-id');
+
+		// 		return timeIndex.openCursor();
+		// 	}).then(function(cursor) {
+		// 		if (!cursor) return;
+		// 		return cursor.advance(1);
+		// 	}).then(function storeTime(cursor) {
+		// 		if (!cursor) return;
+		// 		selectedRoute.collectedStops.forEach(function(stop) {
+		// 			// go through idb stop_times and pull ech entry 
+		// 			// that has a matching stop_id
+					
+		// 			if (stop.stop_id === cursor.value.stop_id) {
+		// 				console.log('stop time: ', cursor.value)
+		// 				console.log('stop.stop_id:', stop.stop_id)
+		// 				console.log('cursor.value.stop_id:', cursor.value.stop_id)
+		// 				var stopTime = cursor.value;
+		// 				stop.stopTimes.push(stopTime);
+		// 				$scope.$apply();
+		// 			}
+		// 		})
+		// 		return cursor.continue().then(storeTime);
+		// 	}).then(function() {
+		// 		console.log('done time cursoring:', selectedRoute)
+		// 	})
+
+
+		// })
+		.catch(function(err) {
 			console.error('Could not collect stops data: ', err);
 		});
-
 		console.log('selectedRoute: ', selectedRoute);
-
-
-		// _dbPromise.then(function(db) {
-		// 	var tx = db.transaction('trips');
-		// 	var store = tx.objectStore('trips');
-		// 	var routeIdIndex = store.index('by-route-id');
-
-		// 	return routeIdIndex.openCursor();	
-		// }).then(function(cursor) {
-		// 	if (!cursor) return;
-		// 	return cursor.advance(1);
-		// }).then(function logValue(cursor) {
-		// 	if (!cursor) return;
-		// 	if (cursor.value.route_id === selectedRoute.name) {
-		// 		// console.log('cursor at: ', cursor.value.trip_id);
-		// 		selectedTrips.push(cursor.value);
-		// 	}
-		// 	// console.log('cursor at: ', cursor.value.route_id);			
-		// 	return cursor.continue().then(logValue);
-		// }).then(function() {
-		// 	console.log('Done cusoring');
-		// 	// conselectedTripssole.log('selected trips: ', );
-		// 	// return _gtfsData('stop_times.txt').then(function(transitData) {
-		// 	// 	var tempStopTimes = [];
-		// 	// 	_dbPromise.then(function(db) {
-		// 	// 		if (!db) return;
-					
-		// 	// 		var tx = db.transaction('stop_times', 'readwrite');
-		// 	// 		var store = tx.objectStore('stop_times');
-		// 	// 		transitData.forEach(function(entry) {
-		// 	// 			selectedTrips.forEach(function(trip) {
-		// 	// 				if (entry.trip_id === trip.trip_id) {
-		// 	// 					store.put(entry);
-		// 	// 					tempStopTimes.push(entry);
-		// 	// 				}
-		// 	// 			});
-		// 	// 		});						
-		// 	// 	});
-		// 	// 	console.log('bajs')
-		// 	// 	return tempStopTimes;
-		// 	// });
-		// 	// return tempStopTimes;
-		// }).then(function(tempStopTimes) {
-		// 	// console.log('tempStopTimes: ', tempStopTimes)
-		// 	console.log('selectedTrips: ', selectedTrips)
-		// }).catch(function(err) {
-		// 	console.error('OOPS! ', err)
-		// });
 	};
 
 	vm.transitionToMap = function() {
