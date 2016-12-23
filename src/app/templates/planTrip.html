@@ -1,4 +1,42 @@
 <div class="container main" ng-init="vm.getCurrentPosition(); vm.init()">
+	<div class="tools">
+		<button class="btn tool" ng-click="showTools=!showTools">
+			plan a trip
+		</button>
+		<div class="plan-trip" ng-show="showTools">
+			<form>
+				<div class="form-group col-sm-6">
+					<label for="departure-input"></label>
+					<input class="form-controll trip-input" 
+						   type="text" 
+						   id="departure-input"
+						   placeholder="departure"
+
+						   ng-model="vm.inputData.departure.addressString">
+					
+				</div>
+
+				<div class="form-group col-sm-6">
+					<label for="arrival-input"></label>
+					<input class="form-controll trip-input" 
+						   type="text"
+						   id="arrival-input"
+						   placeholder="destination"
+						   ng-init="vm.autoAddress()"
+						   ng-model="vm.inputData.arrival.addressString">
+					
+				</div>
+
+				<div class="col-sm-12">
+					<button type="button" class="btn btn-default" ng-click="vm.getAddress()">getAddress</button>
+					<button type="button" class="btn btn-default" ng-click="vm.getCoordsFromAddress(vm.inputData.arrival.addressString.name)">getCoordsFromAddress</button>
+					<button type="button" class="btn btn-default" ng-click="vm.sendRequest()">go</button>
+					<button type="button" class="btn btn-default" ng-click="vm.extractTransitRoute(vm.tripData.legs[0].shape)">extractTransitRoute</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
 
 	<div class="row">
 		<div class="col-sm-12 map-container">
@@ -12,7 +50,8 @@
 				ng-style="vm.setColor(route)"
 				ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1, notFirst: !$first}"
 				ng-click="route.active = !route.active; vm.tripsLoading = true; vm.selectRoute(route)"
-				ng-swipe-down="vm.transitionToMap()">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
+				ng-swipe-down="vm.transitionToMap()">{{route.name}} {{route.color}} - {{route.operated_by_name}}
+			</button>
 			<div class="route-stops-list" ng-if="route.active === true">
 				<div class="loading-img" ng-show="vm.tripsLoading">
 					<i class="fa fa-spinner fa-pulse fa-3x fa-fw" style="color: #{{route.color}}"></i>
@@ -27,6 +66,8 @@
 			</div>
 		</li>
 	</ul>
+
+	<route-list />
 
 	<div class="update-alert" ng-if="vm.showToast">
 		<span>An update is ready</span>

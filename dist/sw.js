@@ -17,12 +17,12 @@ var sources = [
 					// 'https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css',
 					// 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'
 				]
-			];//
+			];
 
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
-			return cache.addAll(sources[0]);
+			return cache.addAll(sources[1]);
 		})
 	);
 });

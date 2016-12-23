@@ -26,10 +26,11 @@ angular.module('transitApp')
 
 	vm.inputData = {};
 	vm.inputData.departure = {};
-	vm.inputData.departure.coords = {};
+	// vm.inputData.departure.coords = {};
 	vm.inputData.arrival = {};
-	vm.inputData.arrival.coords = {};
+	// vm.inputData.arrival.coords = {};
 	vm.currentPosition = {};
+
 
 	vm.currentTime = moment().format('hh:mm:ss');
 	console.log('current time:', vm.currentTime)
@@ -195,7 +196,7 @@ angular.module('transitApp')
 
 	// GTFS data request
 	function _gtfsData(file) {
-		var url = 'assets/transitData/google_transit.zip';		//**************************** !!!hardcoded!!!
+		var url = 'assets/transitData/gtfsVancouver.zip';		//**************************** !!!hardcoded!!!
 		var file = file;
 
 		// console.log('testing... ', gtfsParserService.readZip(url, 'stops.txt'));
@@ -373,13 +374,13 @@ angular.module('transitApp')
 		}
 		transitService.routesByBbox(coords).then(function(response) {
 		// transitService.getStaticRoutes().then(function(response) {	//**************************** mock data
-			// var routes = response.routes;
-			var routes = response.routes.filter(function(route) {
-				var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
-				if (route.operated_by_onestop_id === operators[1]) {	//************************ !!!hardcoded!!!
-					return route;
-				}
-			});
+			var routes = response.routes;
+			// var routes = response.routes.filter(function(route) {
+			// 	var operators = ['o-c20-trimet', 'o-dhw-browardcountytransit'];
+			// 	if (route.operated_by_onestop_id === operators[0]) {	//************************ !!!hardcoded!!!
+			// 		return route;
+			// 	}
+			// });
 
 			vm.currentPosition.countyString = routes[0].operated_by_onestop_id;
 
@@ -410,7 +411,8 @@ angular.module('transitApp')
 						latLngs.push(L.latLng(coord[1], coord[0]));
 					});
 					// add line to map
-					var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map);
+					var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map); /*#################################################################*/
+					// console.log('routeLine', routeLine)
 					// map.fitBounds(routeLine.getBounds());
 				});
 
@@ -458,67 +460,67 @@ angular.module('transitApp')
 		$scope.$apply();
 	};
 
-	// Retrieve list of routes serviced by operator 
-	vm.transitRequest = function(region) {
-		transitService.routesByOperator(region).then(function(response) {
-			vm.routeData = response.data.routes;
-			console.log('transitRequest response: ', response);
-		});
-	};
+	// // Retrieve list of routes serviced by operator 
+	// vm.transitRequest = function(region) {
+	// 	transitService.routesByOperator(region).then(function(response) {
+	// 		vm.routeData = response.data.routes;
+	// 		console.log('transitRequest response: ', response);
+	// 	});
+	// };
 
-	vm.getStopInifo = function() {
-		console.log('getStopInifo: ');
-		vm.routeData[0].stops_served_by_route.forEach(function() {
-			transitService.getStopInfo(this.onestop_id);
-		});
-	};
+	// vm.getStopInifo = function() {
+	// 	console.log('getStopInifo: ');
+	// 	vm.routeData[0].stops_served_by_route.forEach(function() {
+	// 		transitService.getStopInfo(this.onestop_id);
+	// 	});
+	// };
 
-	vm.routeBetween = function(route) {
-		var arrLength = route.stops_served_by_route.length
-		console.log('arrLength: ', arrLength)
-		var dep_onestop_id = route.stops_served_by_route[0].stop_onestop_id;
-		var arr_onestop_id = route.stops_served_by_route[arrLength - 1].stop_onestop_id;
-		console.log('arr_onestop_id: ', arr_onestop_id)
-		transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
-			console.log('controller routeBetween response: ', response);
-		});
-	};
+	// vm.routeBetween = function(route) {
+	// 	var arrLength = route.stops_served_by_route.length
+	// 	console.log('arrLength: ', arrLength)
+	// 	var dep_onestop_id = route.stops_served_by_route[0].stop_onestop_id;
+	// 	var arr_onestop_id = route.stops_served_by_route[arrLength - 1].stop_onestop_id;
+	// 	console.log('arr_onestop_id: ', arr_onestop_id)
+	// 	transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
+	// 		console.log('controller routeBetween response: ', response);
+	// 	});
+	// };
 
-	vm.routeRequest = function(onestop_id) {
-		transitService.routeByOnestopId(onestop_id).then(function(response) {
-			vm.routeData = response.data.routes;
-			console.log('routeRequest response: ', response);
-		});
-	};
+	// vm.routeRequest = function(onestop_id) {
+	// 	transitService.routeByOnestopId(onestop_id).then(function(response) {
+	// 		vm.routeData = response.data.routes;
+	// 		console.log('routeRequest response: ', response);
+	// 	});
+	// };
 
-	vm.scheduleStopPairs = function(onestop_id) {
-		if (vm.scheduleStopPairs) { vm.scheduleStopPairs = []; }
-		transitService.scheduleStopPairs(onestop_id).then(function(response) {
-			console.log('scheduleStopPairs: ', response);
-			vm.scheduleStopPairs = response;
-		});
-	};
+	// vm.scheduleStopPairs = function(onestop_id) {
+	// 	if (vm.scheduleStopPairs) { vm.scheduleStopPairs = []; }
+	// 	transitService.scheduleStopPairs(onestop_id).then(function(response) {
+	// 		console.log('scheduleStopPairs: ', response);
+	// 		vm.scheduleStopPairs = response;
+	// 	});
+	// };
 
-	// Get rout stop pattern by a routes onestop id
-	vm.routeStopPattern = function(routeId) {
-		transitService.routeStopPattern(routeId).then(function(response) {
-			var queryString = '';
-			response.forEach(function(stop) {
-				queryString+= stop+",";
-			});
-			queryString = queryString.slice(0, -1);
+	// // Get rout stop pattern by a routes onestop id
+	// vm.routeStopPattern = function(routeId) {
+	// 	transitService.routeStopPattern(routeId).then(function(response) {
+	// 		var queryString = '';
+	// 		response.forEach(function(stop) {
+	// 			queryString+= stop+",";
+	// 		});
+	// 		queryString = queryString.slice(0, -1);
 
-			// Get data for all stops in stop pattern
-			$http.get('http://transit.land/api/v1/stops?onestop_id='+queryString+'&per_page=100').then(function(response) {
-				console.log('stops from routeStopPattern: ', response);
-				console.log('stop names: ');
-				response.data.stops.forEach(function(stop) {
-					console.log(stop.name);
-				});
+	// 		// Get data for all stops in stop pattern
+	// 		$http.get('http://transit.land/api/v1/stops?onestop_id='+queryString+'&per_page=100').then(function(response) {
+	// 			console.log('stops from routeStopPattern: ', response);
+	// 			console.log('stop names: ');
+	// 			response.data.stops.forEach(function(stop) {
+	// 				console.log(stop.name);
+	// 			});
 				
-			});
-		});
-	}
+	// 		});
+	// 	});
+	// };
 
 	vm.getCurrentPosition = function() {
 		var position = locationService.getCurrentPosition().then(function(position) {
@@ -527,64 +529,76 @@ angular.module('transitApp')
 			vm.currentPosition.lon = position.coords.longitude;
 			return position.coords;
 		}).then(function(position) {
+			vm.inputData.departure.coords = position;
 			locationService.revGeocode(position).then(function(results) {
 				console.log('region: ', results.address_components[3].short_name);
 				vm.currentPosition.addressString = results.formatted_address;
+				vm.inputData.departure.addressString = vm.currentPosition.addressString;
+				
 				// vm.currentPosition.countyString = results.address_components[3].short_name;
-				vm.currentPosition.countyString = 'o-dhw-browardcountytransit';		//****************************** !!!hardcoded!!!
+				// vm.currentPosition.countyString = 'o-dhw-browardcountytransit';		//****************************** !!!hardcoded!!!
 			});
 		});		
 	};
 
-	// vm.autoAddress = function(id) {
-	// 	var input = document.getElementById(id);
-	// 	var options = {
-	// 		types: ['address']
-	// 	};
-	// 	if (input.id === 'departure-inp') {
-	// 		$scope.departureAutocomplete = new google.maps.places.Autocomplete(input, options);
-	// 	} else {
-	// 		$scope.arrivalAutocomplete = new google.maps.places.Autocomplete(input, options);
-	// 	}
-	// };
+	vm.autoAddress = function() {
+		var departureInputElement = document.getElementById('departure-input');
+		var arrivalInputElement = document.getElementById('arrival-input');		
+		var options = {
+			types: ['address']
+		};
+		vm.inputData.departure.autocomplete = new google.maps.places.Autocomplete(departureInputElement, options);
+		vm.inputData.arrival.autocomplete = new google.maps.places.Autocomplete(arrivalInputElement, options);
+	};
 
-	vm.getAddress = function(id) {
-		if (id === 'departure-inp') {
-			$timeout(function() {
-				console.log('*** getAddress ***');
-				console.log('locationData: ', $scope.departureAutocomplete.getPlace());
-				if ($scope.departureAutocomplete.getPlace()) {
-					vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().formatted_address;
-					vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
-					vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
-				}
-			}, 500);
-		} else {
-			$timeout(function() {
-				console.log('*** getAddress ***');
-				console.log('locationData: ', $scope.arrivalAutocomplete.getPlace());
-				if ($scope.arrivalAutocomplete.getPlace()) {
-					vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().formatted_address;
-					vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
-					vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
-				}
-			}, 500);
-		}
+	vm.getAddress = function() {
+		console.log(vm.inputData.arrival.autocomplete.getPlace())
+		vm.inputData.arrival.addressString = vm.inputData.arrival.autocomplete.getPlace()
+		// if (id === 'departure-inp') {
+		// 	$timeout(function() {
+		// 		console.log('*** getAddress ***');
+		// 		console.log('locationData: ', $scope.departureAutocomplete.getPlace());
+		// 		if ($scope.departureAutocomplete.getPlace()) {
+		// 			vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().formatted_address;
+		// 			vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
+		// 			vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
+		// 		}
+		// 	}, 500);
+		// } else {
+		// 	$timeout(function() {
+		// 		console.log('*** getAddress ***');
+		// 		console.log('locationData: ', $scope.arrivalAutocomplete.getPlace());
+		// 		if ($scope.arrivalAutocomplete.getPlace()) {
+		// 			vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().formatted_address;
+		// 			vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
+		// 			vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
+		// 		}
+		// 	}, 500);
+		// }
+	};
+
+	vm.getCoordsFromAddress = function(address) {
+		locationService.geocode(address).then(function(response) {
+			console.log('getCoordsFromAddress response', response)
+			vm.inputData.arrival.coords = response.data.results[0].geometry.location;
+			console.log('vm.inputData.arrival.coords', vm.inputData.arrival.coords)
+		});
+		
 	};
 
 	// Retrieve route info between current position or departure input value
 	// and arrival input value
-	vm.sendRequest = function(input) {
+	vm.sendRequest = function() {
 		var requestParams = {
 			"locations": [
 				{
-					"lat": vm.inputData.departure.coords.lat || vm.currentPosition.lat,
-					"lon": vm.inputData.departure.coords.lon || vm.currentPosition.lon
+					"lat": vm.inputData.departure.coords.latitude || vm.currentPosition.lat,
+					"lon": vm.inputData.departure.coords.longitude || vm.currentPosition.lon
 					// "type": "break"
 				},
 				{
 					"lat": vm.inputData.arrival.coords.lat,
-					"lon": vm.inputData.arrival.coords.lon
+					"lon": vm.inputData.arrival.coords.lng
 					// "type": "break"
 				}	
 			],
@@ -596,7 +610,8 @@ angular.module('transitApp')
 				}
 			},
 			"directions_options": { "units":"miles" }
-		}
+		};
+
 		var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
 
 		$http({
@@ -609,6 +624,19 @@ angular.module('transitApp')
 			console.log('RequestService.send error: ', e);
 		});
 	};
+
+	vm.extractTransitRoute = function(str) {
+		// add polyline to map
+		locationService.decodePolyline(str).then(function(coordinates) {
+			var latLngs = [];
+			coordinates.forEach(function(pair) {				
+				latLngs.push(L.latLng(pair[0], pair[1]));				
+			});
+			var polyline = L.polyline(latLngs, { color: 'red' }).addTo(map);
+
+			map.fitBounds(polyline.getBounds());
+		});
+	}
 
 	function _setBboxLine(position) {
 			// create bounding boxs area to illustrate routesByBbox search area
@@ -645,6 +673,9 @@ angular.module('transitApp')
 
 	vm.init = function() {
 		// registerServiceWorker();
+		locationService.getCurrentPosition().then(function(position) {
+			_getRoutes(position);
+		});
 	};
 
 	vm.initMap = function() {
@@ -665,12 +696,6 @@ angular.module('transitApp')
 
 			// _setBboxLine(position);
 
-			return position;
-		}).then(function(position) {
-			console.log('*** position: ', position);
-
-			_getRoutes(position);
-		
 		}).catch(function(err) {
 			console.log('getPosition error: ', err);
 		});	
@@ -800,5 +825,7 @@ angular.module('transitApp')
 	vm.testFunction = function() {
 		console.log('hello world!');
 	};
+
+	// console.log('hello');
 
 }]);

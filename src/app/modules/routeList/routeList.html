@@ -1,0 +1,22 @@
+<ul class="route-list" id="routesContainer">
+	<li ng-repeat="route in routes" class="route-button-container">
+		<button class="col-sm-12 btn route-button"
+			ng-style="setColor(route)"
+			ng-class="{routeButtonFirst: $first, stuck: $first, routeButtonSecond: $index === 1, notFirst: !$first}"
+			ng-click="route.active = !route.active; tripsLoading = true; selectRoute(route)"
+			ng-swipe-down="transitionToMap()">{{route.name}} {{route.color}} - {{route.operated_by_name}}</button>
+		<div class="route-stops-list" ng-if="route.active === true">
+			<div class="loading-img" ng-show="tripsLoading">
+				<i class="fa fa-spinner fa-pulse fa-3x fa-fw" style="color: #{{route.color}}"></i>
+				<span class="sr-only">Loading...</span>
+			</div>
+			<ul>
+				<li ng-show="!tripsLoading" 
+					ng-repeat="stop in selectedRoute.collectedStops | limitTo: 10" 
+					class="stop-item" 
+					style="border-left: 10px solid #{{route.color}};">{{stop.stop_name}} {{stop.stopTimes[0].departure_time}}</li>
+			</ul>
+		</div>
+	</li>
+	{{vm.test}}
+</ul>

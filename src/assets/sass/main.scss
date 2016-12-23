@@ -54,8 +54,27 @@ li.location-suggestion {
 	margin-bottom: 10px;
 }
 
+/*
+ *  tools
+ */
+.tool {
+  background: grey;
+  color: #fff;
+  height: 50px;
+  border-radius: 0px;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 100vw;
+}
 
+.plan-trip {
+  margin-top: 15px;
+}
 
+.trip-input {
+  width: 100%;
+}
 
 /*
  *  route list
