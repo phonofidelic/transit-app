@@ -21,6 +21,7 @@ angular.module('transitApp')
 		scrollWheelZoom: false
 		// zoom: 1
 	});
+	var routeLineLayer;
 
 	vm.gtfsParserService = new GTFSParserService();
 
@@ -405,16 +406,19 @@ angular.module('transitApp')
 
 				var lines = route.geometry.coordinates;
 
+				routeLineLayer = L.layerGroup();
 				lines.forEach(function(line) {
 					var latLngs = [];
 					line.forEach(function(coord) {
 						latLngs.push(L.latLng(coord[1], coord[0]));
 					});
 					// add line to map
-					var routeLine = L.polyline(latLngs, { color: '#'+route.color }).addTo(map); /*#################################################################*/
+					routeLineLayer.addLayer(L.polyline(latLngs, { color: '#'+route.color })); /*#################################################################*/
+					// map.addLayer(routeLineLayer);
 					// console.log('routeLine', routeLine)
 					// map.fitBounds(routeLine.getBounds());
 				});
+				map.addLayer(routeLineLayer);
 
 				route.active = false;
 			});
@@ -460,68 +464,6 @@ angular.module('transitApp')
 		$scope.$apply();
 	};
 
-	// // Retrieve list of routes serviced by operator 
-	// vm.transitRequest = function(region) {
-	// 	transitService.routesByOperator(region).then(function(response) {
-	// 		vm.routeData = response.data.routes;
-	// 		console.log('transitRequest response: ', response);
-	// 	});
-	// };
-
-	// vm.getStopInifo = function() {
-	// 	console.log('getStopInifo: ');
-	// 	vm.routeData[0].stops_served_by_route.forEach(function() {
-	// 		transitService.getStopInfo(this.onestop_id);
-	// 	});
-	// };
-
-	// vm.routeBetween = function(route) {
-	// 	var arrLength = route.stops_served_by_route.length
-	// 	console.log('arrLength: ', arrLength)
-	// 	var dep_onestop_id = route.stops_served_by_route[0].stop_onestop_id;
-	// 	var arr_onestop_id = route.stops_served_by_route[arrLength - 1].stop_onestop_id;
-	// 	console.log('arr_onestop_id: ', arr_onestop_id)
-	// 	transitService.routeBetween(dep_onestop_id, arr_onestop_id).then(function(response) {
-	// 		console.log('controller routeBetween response: ', response);
-	// 	});
-	// };
-
-	// vm.routeRequest = function(onestop_id) {
-	// 	transitService.routeByOnestopId(onestop_id).then(function(response) {
-	// 		vm.routeData = response.data.routes;
-	// 		console.log('routeRequest response: ', response);
-	// 	});
-	// };
-
-	// vm.scheduleStopPairs = function(onestop_id) {
-	// 	if (vm.scheduleStopPairs) { vm.scheduleStopPairs = []; }
-	// 	transitService.scheduleStopPairs(onestop_id).then(function(response) {
-	// 		console.log('scheduleStopPairs: ', response);
-	// 		vm.scheduleStopPairs = response;
-	// 	});
-	// };
-
-	// // Get rout stop pattern by a routes onestop id
-	// vm.routeStopPattern = function(routeId) {
-	// 	transitService.routeStopPattern(routeId).then(function(response) {
-	// 		var queryString = '';
-	// 		response.forEach(function(stop) {
-	// 			queryString+= stop+",";
-	// 		});
-	// 		queryString = queryString.slice(0, -1);
-
-	// 		// Get data for all stops in stop pattern
-	// 		$http.get('http://transit.land/api/v1/stops?onestop_id='+queryString+'&per_page=100').then(function(response) {
-	// 			console.log('stops from routeStopPattern: ', response);
-	// 			console.log('stop names: ');
-	// 			response.data.stops.forEach(function(stop) {
-	// 				console.log(stop.name);
-	// 			});
-				
-	// 		});
-	// 	});
-	// };
-
 	vm.getCurrentPosition = function() {
 		var position = locationService.getCurrentPosition().then(function(position) {
 			console.log('getPosition result: ', position.coords);
@@ -552,29 +494,7 @@ angular.module('transitApp')
 	};
 
 	vm.getAddress = function() {
-		console.log(vm.inputData.arrival.autocomplete.getPlace())
-		vm.inputData.arrival.addressString = vm.inputData.arrival.autocomplete.getPlace()
-		// if (id === 'departure-inp') {
-		// 	$timeout(function() {
-		// 		console.log('*** getAddress ***');
-		// 		console.log('locationData: ', $scope.departureAutocomplete.getPlace());
-		// 		if ($scope.departureAutocomplete.getPlace()) {
-		// 			vm.inputData.departure.name = $scope.departureAutocomplete.getPlace().formatted_address;
-		// 			vm.inputData.departure.coords.lat = $scope.departureAutocomplete.getPlace().geometry.location.lat();
-		// 			vm.inputData.departure.coords.lon = $scope.departureAutocomplete.getPlace().geometry.location.lng();
-		// 		}
-		// 	}, 500);
-		// } else {
-		// 	$timeout(function() {
-		// 		console.log('*** getAddress ***');
-		// 		console.log('locationData: ', $scope.arrivalAutocomplete.getPlace());
-		// 		if ($scope.arrivalAutocomplete.getPlace()) {
-		// 			vm.inputData.arrival.name = $scope.arrivalAutocomplete.getPlace().formatted_address;
-		// 			vm.inputData.arrival.coords.lat = $scope.arrivalAutocomplete.getPlace().geometry.location.lat();
-		// 			vm.inputData.arrival.coords.lon = $scope.arrivalAutocomplete.getPlace().geometry.location.lng();
-		// 		}
-		// 	}, 500);
-		// }
+		vm.inputData.arrival.addressString = vm.inputData.arrival.autocomplete.getPlace();
 	};
 
 	vm.getCoordsFromAddress = function(address) {
@@ -633,7 +553,10 @@ angular.module('transitApp')
 				latLngs.push(L.latLng(pair[0], pair[1]));				
 			});
 			var polyline = L.polyline(latLngs, { color: 'red' }).addTo(map);
-
+			console.log('routeLineLayer', routeLineLayer)
+			// map.removeLayer(routeLineLayer);
+			routeLineLayer.clearLayers();
+			$scope.$apply();
 			map.fitBounds(polyline.getBounds());
 		});
 	}
