@@ -21,6 +21,24 @@ angular.module('transitApp')
 		scrollWheelZoom: false
 		// zoom: 1
 	});
+	var staticColors = [
+		'00985f',
+		'4e5357',
+		'6e3217',
+		'cf8e00',
+		'ff6319',
+		'006a84',
+		'01af40',
+		'0038a5',
+		'c60c31',
+		'c60c31',
+		'01a1df',
+		'996533',
+		'6bbf43',
+		'a8a9ad',
+		'808183',
+		'fccc0a'
+	];
 	var routeLineLayer;
 
 	vm.gtfsParserService = new GTFSParserService();
@@ -390,18 +408,30 @@ angular.module('transitApp')
 			$scope.$apply();
 			// console.log('*** routes: ', routes);
 			
-			// set up each route
+			// set up each route	
+
+			function getRandomInt(min, max) {
+				min = Math.ceil(min);
+				max = Math.floor(max);
+				return Math.floor(Math.random() * (max - min)) + min;
+			}
+
 			routes.forEach(function(route) {
 					
 				var routeColor; 
 				if (route.color === null || route.color === undefined) {
-					var color = randomColor({
-						luminosity: 'bright'
-						// hue: 'random'
-					});
-					color = color.replace('#', '');
+					var colorIndex = getRandomInt(0, staticColors.length);
+					var color = staticColors[colorIndex];
+					staticColors.splice(colorIndex, 1);
+					console.log('color', colorIndex, color);
+					if (angular.isUndefined(color)) {
+						color = randomColor({
+							luminosity: 'bright'
+						});
+						color = color.replace('#', '');
+						console.log('randomcolor', color)
+					}
 					route.color = color;
-					// $scope.$apply();
 				}
 
 				var lines = route.geometry.coordinates;
@@ -419,6 +449,7 @@ angular.module('transitApp')
 					// map.fitBounds(routeLine.getBounds());
 				});
 				map.addLayer(routeLineLayer);
+				// routeLineLayer.addTo(map);
 
 				route.active = false;
 			});
@@ -449,13 +480,10 @@ angular.module('transitApp')
 			prefix: 'fa'
 		});
 		stops.forEach(function(stop) {
-			// if (stop.stop_lat && stop.stop_lon) {
-				var latlng = L.latLng(stop.stop_lat, stop.stop_lon);
-			// }
+			var latlng = L.latLng(stop.stop_lat, stop.stop_lon);
 			latLngs.push(latlng);
 		});
 		latLngs.forEach(function(latLng) {
-			// L.marker(latLng).addTo(map);
 			markerLayer.addLayer(L.marker(latLng, {icon: vectorMarker}));
 		});
 		console.log('### add marker ###', markersAdded)
@@ -541,11 +569,14 @@ angular.module('transitApp')
 			console.log('sendRequest response: ', response);
 			vm.tripData = response.data.trip;
 		}).catch(function(e) {
-			console.log('RequestService.send error: ', e);
+			$log.error('RequestService.send error: ', e);
 		});
 	};
 
 	vm.extractTransitRoute = function(str) {
+		routeLineLayer.clearLayers();
+		// $scope.$apply();
+
 		// add polyline to map
 		locationService.decodePolyline(str).then(function(coordinates) {
 			var latLngs = [];
@@ -555,8 +586,7 @@ angular.module('transitApp')
 			var polyline = L.polyline(latLngs, { color: 'red' }).addTo(map);
 			console.log('routeLineLayer', routeLineLayer)
 			// map.removeLayer(routeLineLayer);
-			routeLineLayer.clearLayers();
-			$scope.$apply();
+			
 			map.fitBounds(polyline.getBounds());
 		});
 	}
