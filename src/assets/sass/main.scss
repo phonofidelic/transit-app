@@ -22,14 +22,18 @@ body {
 
 #map {
 	// height: 500px;
+  // position: fixed;
   height: 100vh;
 	width: 100%;
+  left: 0;
+  right: 0;
 
 	// position: absolute;
 }
 
 .main {
   padding: 0px;
+  width: 100%;
 }
 
 .map-container {
@@ -167,7 +171,6 @@ li {
   height: 50px;
   padding:10px;
   z-index: 1000;
-  color: red;
 }
 
 .map-container {

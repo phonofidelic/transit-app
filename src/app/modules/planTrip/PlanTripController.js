@@ -609,8 +609,6 @@ angular.module('transitApp')
 		// *** set up scroll behavior for route list ***
 
 		window.onscroll = function() {
-			console.log('firstItem', firstItem.offset().top)
-			console.log('secondItem', secondItem.offset().top)
 			if ($('.routeButtonFirst').offset().top >= $('.routeButtonSecond').offset().top) {
 				$('.routeButtonFirst').removeClass('stuck');
 			}
