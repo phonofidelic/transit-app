@@ -607,19 +607,16 @@ angular.module('transitApp')
 
 	function _checkScroll() {
 		// *** set up scroll behavior for route list ***
-		var secondItem = $('.routeButtonSecond');
-		var firstItem = $('.routeButtonFirst');
 
-		// if (secondItem.offset().top < firstItem.offset().top) {
-		// 	// $('.notFirst').css('visibility', 'hidden');
-		// }
 		window.onscroll = function() {
-			if (firstItem.offset().top >= secondItem.offset().top) {
-				firstItem.removeClass('stuck');
+			console.log('firstItem', firstItem.offset().top)
+			console.log('secondItem', secondItem.offset().top)
+			if ($('.routeButtonFirst').offset().top >= $('.routeButtonSecond').offset().top) {
+				$('.routeButtonFirst').removeClass('stuck');
 			}
 
-			if ($(document).scrollTop() + window.innerHeight < firstItem.offset().top + 50) {
-				firstItem.addClass('stuck');
+			if ($(document).scrollTop() + window.innerHeight < $('.routeButtonFirst').offset().top + 50) {
+				$('.routeButtonFirst').addClass('stuck');
 			}
 		};
 	};
