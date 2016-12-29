@@ -1,0 +1,1 @@
+angular.module("transitApp").config(["$routeProvider","$locationProvider",function(l,r){l.when("/",{templateUrl:"app/templates/planTrip.html",controller:"PlanTripController",controllerAs:"vm"}),r.html5Mode(!0)}]);

@@ -4,7 +4,7 @@
 * Description
 * 
 */
-angular.module('transitApp').factory('TransitDataService', ['$scope', '$http' 'LocationService','TransitLandRequestService' function($scope, $http, LocationService, TransitLandRequestService){
+angular.module('transitApp').factory('TransitDataService', ['$scope', '$http', 'LocationService', 'TransitLandRequestService', function($scope, $http, LocationService, TransitLandRequestService){
 	function TransitDataService() {
 		var self = this;
 		this.locationService = new LocationService();

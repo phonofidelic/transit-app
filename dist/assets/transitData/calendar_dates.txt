@@ -1,5 +1,0 @@
-service_id,date,exception_type
-16JUN_s,20160704,1
-16JUN_muwtf,20160704,2
-16JUN_s,20160905,1
-16JUN_muwtf,20160905,2

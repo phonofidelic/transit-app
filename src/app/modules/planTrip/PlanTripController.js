@@ -589,7 +589,7 @@ angular.module('transitApp')
 			
 			map.fitBounds(polyline.getBounds());
 		});
-	}
+	} 
 
 	function _setBboxLine(position) {
 			// create bounding boxs area to illustrate routesByBbox search area

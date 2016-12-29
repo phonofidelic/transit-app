@@ -21,6 +21,7 @@ var gulp = require('gulp'),
 	filter = require('gulp-filter'),
 	gulpif = require('gulp-if'),
 	gulpSw = require('gulp-serviceworker'),
+	pump = require('pump'),
 	browserSync = require('browser-sync').create();
 
 //  browser sync
@@ -142,10 +143,6 @@ gulp.task('styles', function() {
 		extname: '.min.css'
 	}))
 	.pipe(gulp.dest('dist/css'))
-	// .pipe(rev())
-	// .pipe(gulp.dest('dist/css'))
-	// .pipe(rev.manifest('main.manifest.json'))
-	// .pipe(gulp.dest('dist/css'))
 	.pipe(browserSync.stream());
 });
 gulp.task('watch-css', function() {
@@ -182,16 +179,20 @@ gulp.task('templates', function() {
 /**
  * app
 */
-gulp.task('app', function() {
-	return gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js'])
-	.pipe(concat('app.min.js'))
-	.pipe(uglify())
-	.pipe(gulp.dest('dist/app'))
-	// .pipe(rev())
-	// .pipe(gulp.dest('dist/app'))
-	// .pipe(rev.manifest('app.manifest.json'))
-	// .pipe(gulp.dest('dist/app'))
-	.pipe(browserSync.stream());
+gulp.task('app', function(cb) {
+	pump([
+		gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js']),
+		// concat('app.min.js'),
+		uglify(),
+		gulp.dest('dist/app')
+		// .pipe(rev())
+		// .pipe(gulp.dest('dist/app'))
+		// .pipe(rev.manifest('app.manifest.json'))
+		// .pipe(gulp.dest('dist/app'))
+		],
+		cb
+	);
+
 });
 gulp.task('watch-app', function() {
 	gulp.watch('src/app/**/*.js', ['app']);
@@ -261,7 +262,7 @@ gulp.task('lint', function() {
 });
 
 // serve
-gulp.task('serve', ['watch-css', 'watch-app', 'dev-sync']);
+gulp.task('serve', ['clean-dist', 'watch-css', 'watch-app', 'dev-sync']);
 
 // lint
 

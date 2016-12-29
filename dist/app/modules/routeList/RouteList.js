@@ -1,0 +1,1 @@
+"use-strict";angular.module("transitApp").controller("RoutListController",["$scope","$http","LocationService","TransitLandRequestService","TransitDataService",function(t,e,r,i,n){var o=this;new i,new r;t.routes=[],o.test="hello"}]).directive("routeList",function(){return{temlate:"./routeList.html"}});
