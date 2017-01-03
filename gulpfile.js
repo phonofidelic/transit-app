@@ -107,6 +107,7 @@ gulp.task('deps', function() {
 			  'src/lib/jszip/dist/jszip.js',
 			  'src/lib/jszip-utils/dist/jszip-utils.js',
 			  'src/lib/randomcolor/randomColor.js',
+			  'src/lib/moment/min/moment-with-locales.min.js',
 			  'src/lib/**/*.min.js'])
 	.pipe(flatten())
 	.pipe(concat('deps.min.js'))
@@ -182,7 +183,7 @@ gulp.task('templates', function() {
 gulp.task('app', function(cb) {
 	pump([
 		gulp.src(['src/app/app.module.js', 'src/app/app.config.js', 'src/app/**/*.js']),
-		// concat('app.min.js'),
+		concat('app.min.js'),
 		uglify(),
 		gulp.dest('dist/app')
 		// .pipe(rev())
@@ -262,7 +263,7 @@ gulp.task('lint', function() {
 });
 
 // serve
-gulp.task('serve', ['clean-dist', 'watch-css', 'watch-app', 'dev-sync']);
+gulp.task('serve', ['watch-css', 'watch-app', 'dev-sync']);
 
 // lint
 

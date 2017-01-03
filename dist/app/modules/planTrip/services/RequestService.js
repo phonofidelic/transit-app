@@ -1,1 +1,0 @@
-angular.module("transitApp").factory("RequestService",["$http",function(t){function e(){}return e.prototype.send=function(e){t({method:"GET",url:e}).then(function(t){return t})["catch"](function(t){console.log("RequestService.send error: ",t)})},e}]);

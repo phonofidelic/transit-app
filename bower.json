@@ -34,8 +34,7 @@
     "angular-swipe": "^0.1.0",
     "randomcolor": "randomColor#^0.4.4",
     "Leaflet.vector-markers": "^0.0.6",
-    "moment": "momentjs#^2.15.1",
-    "sticky.js": "^1.1.6"
+    "moment": "momentjs#^2.15.1"
   },
   "resolutions": {
     "angular": "^1.5.7"

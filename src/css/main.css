@@ -43,7 +43,8 @@ li.location-suggestion {
   width: 100vw; }
 
 .plan-trip {
-  margin-top: 15px; }
+  margin-top: 15px;
+  margin-bottom: 10px; }
 
 .trip-input {
   width: 100%; }

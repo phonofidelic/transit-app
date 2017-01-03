@@ -28,13 +28,11 @@
 				</div>
 
 				<div class="col-sm-12">
-					<button type="button" class="btn btn-default" ng-click="vm.getAddress()">getAddress</button>
-					<button type="button" class="btn btn-default" ng-click="vm.getCoordsFromAddress(vm.inputData.arrival.addressString.name)">getCoordsFromAddress</button>
-					<button type="button" class="btn btn-default" ng-click="vm.sendRequest()">go</button>
-					<button type="button" class="btn btn-default" ng-click="vm.extractTransitRoute(vm.tripData.legs[0].shape)">extractTransitRoute</button>
+					<button class="btn btn-default" ng-click="vm.planTrip()">test planTrip</button>
 				</div>
 			</form>
 		</div>
+		<button class="btn tool" ng-show="showTools" ng-click="vm.showDefaultMap()">back to default map</button>
 	</div>
 
 

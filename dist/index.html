@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en" ng-app="transitApp">
+<head>
+	<base href="/">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>transit app</title>
+	<link rel="manifest" href="/manifest.webmanifest">
+	<link rel="icon" href="assets/img/icon/lowres.png">
+	<link rel="stylesheet" href="css/deps.min.css">
+	
+	<link rel="stylesheet" href="https://unpkg.com/lrm-mapzen@1.0.5/dist/lrm-mapzen.css">
+	<!-- fontawsome -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+	<link rel="stylesheet" href="css/main.min.css">
+
+	<script src="lib/tangram.min.js"></script>
+
+	<script src="lib/deps.min.js"></script>
+	<!-- google scripts -->
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJa-YCzQ7t6AhlXCj7c-9p1b0QdlWZWG8&libraries=places,geocoder"></script>
+</head>
+<body>
+	<!-- <div class="container"> -->
+		<header>
+			<h1 class="logo">Transit</h1>
+		</header>
+		<main>
+			<ng-view></ng-view>
+		</main>
+		<footer>
+			
+		</footer>
+	<!-- </div> -->
+	<script src="app/app.min.js"></script>
+</body>
+</html>

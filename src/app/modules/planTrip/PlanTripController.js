@@ -39,7 +39,8 @@ angular.module('transitApp')
 		'808183',
 		'fccc0a'
 	];
-	var routeLineLayer;
+	var routeLineLayer = L.layerGroup();
+	var setUpRouteVisuals;
 
 	vm.gtfsParserService = new GTFSParserService();
 
@@ -48,11 +49,11 @@ angular.module('transitApp')
 	// vm.inputData.departure.coords = {};
 	vm.inputData.arrival = {};
 	// vm.inputData.arrival.coords = {};
-	vm.currentPosition = {};
+	vm.currentPosition = { coords: {} };
 
 
-	vm.currentTime = moment().format('hh:mm:ss');
-	console.log('current time:', vm.currentTime)
+	// vm.currentTime = moment().format('hh:mm:ss');
+	// console.log('current time:', vm.currentTime)
 	// vm.routes = [];
 	var _dbPromise = openDatabase();
 
@@ -408,51 +409,61 @@ angular.module('transitApp')
 			$scope.$apply();
 			// console.log('*** routes: ', routes);
 			
-			// set up each route	
+			// set up color and shape for each route
+			setUpRouteVisuals = new Promise(function(resolve) {
 
-			function getRandomInt(min, max) {
-				min = Math.ceil(min);
-				max = Math.floor(max);
-				return Math.floor(Math.random() * (max - min)) + min;
-			}
 
-			routes.forEach(function(route) {
-					
-				var routeColor; 
-				if (route.color === null || route.color === undefined) {
-					var colorIndex = getRandomInt(0, staticColors.length);
-					var color = staticColors[colorIndex];
-					staticColors.splice(colorIndex, 1);
-					console.log('color', colorIndex, color);
-					if (angular.isUndefined(color)) {
-						color = randomColor({
-							luminosity: 'bright'
-						});
-						color = color.replace('#', '');
-						console.log('randomcolor', color)
-					}
-					route.color = color;
+				function getRandomInt(min, max) {
+					min = Math.ceil(min);
+					max = Math.floor(max);
+					return Math.floor(Math.random() * (max - min)) + min;
 				}
 
-				var lines = route.geometry.coordinates;
+				routes.forEach(function(route) {		
+					var routeColor; 
+					if (route.color === null || route.color === undefined) {
+						var colorIndex = getRandomInt(0, staticColors.length);
+						var color = staticColors[colorIndex];
+						staticColors.splice(colorIndex, 1);
+						console.log('color', colorIndex, color);
+						if (angular.isUndefined(color)) {
+							color = randomColor({
+								luminosity: 'bright'
+							});
+							color = color.replace('#', '');
+							console.log('randomcolor', color)
+						}
+						route.color = color;
+					}
 
-				routeLineLayer = L.layerGroup();
-				lines.forEach(function(line) {
-					var latLngs = [];
-					line.forEach(function(coord) {
-						latLngs.push(L.latLng(coord[1], coord[0]));
+					var lines = route.geometry.coordinates;
+
+					// routeLineLayer = L.layerGroup();
+					lines.forEach(function(line) {
+						var latLngs = [];
+						line.forEach(function(coord) {
+							latLngs.push(L.latLng(coord[1], coord[0]));
+						});
+						// add line to map
+						routeLineLayer.addLayer(L.polyline(latLngs, { color: '#'+route.color })); /*#################################################################*/
+						// map.addLayer(routeLineLayer);
+						// console.log('routeLine', routeLine)
+						// map.fitBounds(routeLine.getBounds());
 					});
-					// add line to map
-					routeLineLayer.addLayer(L.polyline(latLngs, { color: '#'+route.color })); /*#################################################################*/
-					// map.addLayer(routeLineLayer);
-					// console.log('routeLine', routeLine)
-					// map.fitBounds(routeLine.getBounds());
+					route.active = false;
 				});
+				resolve(routeLineLayer);
+			});
+
+			setUpRouteVisuals.then(function(routeLineLayer) {
 				map.addLayer(routeLineLayer);
 				// routeLineLayer.addTo(map);
-
-				route.active = false;
+			}).catch(function(err) {
+				$log.error('setUpRouteVisuals error', err)
 			});
+
+
+				
 
 			vm.routes = routes;
 			$scope.$apply();	//*************** needed to update view with new model state
@@ -495,8 +506,8 @@ angular.module('transitApp')
 	vm.getCurrentPosition = function() {
 		var position = locationService.getCurrentPosition().then(function(position) {
 			console.log('getPosition result: ', position.coords);
-			vm.currentPosition.lat = position.coords.latitude;
-			vm.currentPosition.lon = position.coords.longitude;
+			vm.currentPosition.coords.latitude = position.coords.latitude;
+			vm.currentPosition.coords.longitude = position.coords.longitude;
 			return position.coords;
 		}).then(function(position) {
 			vm.inputData.departure.coords = position;
@@ -525,71 +536,133 @@ angular.module('transitApp')
 		vm.inputData.arrival.addressString = vm.inputData.arrival.autocomplete.getPlace();
 	};
 
-	vm.getCoordsFromAddress = function(address) {
-		locationService.geocode(address).then(function(response) {
-			console.log('getCoordsFromAddress response', response)
-			vm.inputData.arrival.coords = response.data.results[0].geometry.location;
-			console.log('vm.inputData.arrival.coords', vm.inputData.arrival.coords)
-		});
-		
-	};
+	vm.planTrip = function() {
+		// remove route lines
+		// map.eachLayer(function(layer) {
+		// 	// map.removeLayer(layer)
+		// 	console.log('layer', layer)
+		// })
+		console.log('routeLineLayer', routeLineLayer)
+		map.removeLayer(routeLineLayer);
 
-	// Retrieve route info between current position or departure input value
-	// and arrival input value
-	vm.sendRequest = function() {
-		var requestParams = {
-			"locations": [
-				{
-					"lat": vm.inputData.departure.coords.latitude || vm.currentPosition.lat,
-					"lon": vm.inputData.departure.coords.longitude || vm.currentPosition.lon
-					// "type": "break"
-				},
-				{
-					"lat": vm.inputData.arrival.coords.lat,
-					"lon": vm.inputData.arrival.coords.lng
-					// "type": "break"
-				}	
-			],
-			"costing": "multimodal",
-			"costing_options": {
-				"transit": {
-					"use_bus": 0.1,
-					"use_rail": 1.0
-				}
-			},
-			"directions_options": { "units":"miles" }
+		// set up promises
+		var getAddress = new Promise(function(resolve, reject) {
+			var addressString = vm.inputData.arrival.autocomplete.getPlace();
+			if (angular.isUndefined(addressString)) {
+				reject(new Error('addressString is undefined'));
+			}
+			resolve(addressString);
+		});
+
+		var getCoordsFromAddress = function(address) {
+			return new Promise(function(resolve, reject) {
+				locationService.geocode(address).then(function(response) {
+					console.log('getCoordsFromAddress response', response)
+					var coords = response.data.results[0].geometry.location;
+					console.log('coords', coords);
+					resolve(coords);
+				});		
+			})
 		};
 
-		var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
+		function sendRequest(coords) {
+			var requestParams = {
+				"locations": [
+					{
+						"lat": vm.inputData.departure.coords.latitude || vm.currentPosition.coords.latitude,
+						"lon": vm.inputData.departure.coords.longitude || vm.currentPosition.coords.longitude
+						// "type": "break"
+					},
+					{
+						"lat": coords.lat,
+						"lon": coords.lng
+						// "type": "break"
+					}	
+				],
+				"costing": "multimodal",
+				"costing_options": {
+					"transit": {
+						"use_bus": 0.1,
+						"use_rail": 1.0
+					}
+				},
+				"directions_options": { "units":"miles" }
+			};
 
-		$http({
-			method: 'GET',
-			url: url,
-		}).then(function(response) {
-			console.log('sendRequest response: ', response);
-			vm.tripData = response.data.trip;
-		}).catch(function(e) {
-			$log.error('RequestService.send error: ', e);
+			var url = 'https://valhalla.mapzen.com/route?json='+JSON.stringify(requestParams)+'&api_key=valhalla-m9bds2x'.replace('%22', '');
+
+			$http({
+				method: 'GET',
+				url: url,
+			}).then(function(response) {
+				console.log('sendRequest response: ', response);
+				var polyStr = response.data.trip.legs[0].shape;
+				var maneuvers = response.data.trip.legs[0].maneuvers;
+				routeLineLayer.clearLayers();
+				// $scope.$apply();
+
+				// add polyline to map
+				locationService.decodePolyline(polyStr).then(function(coordinates) {
+					var latLngs = [];
+					coordinates.forEach(function(pair) {				
+						latLngs.push(L.latLng(pair[0], pair[1]));				
+					});
+					var polyline = L.polyline(latLngs, { color: 'red' }).addTo(map);
+					console.log('routeLineLayer', routeLineLayer)
+					// map.removeLayer(routeLineLayer);
+					
+					map.fitBounds(polyline.getBounds());
+				});
+
+				// add markers for transit stops
+				var markerCoords = [];
+				maneuvers.filter(function(maneuver) {
+					var markerCoord = {};
+					if (maneuver.travel_mode === 'transit') {
+						maneuver.transit_info.transit_stops.forEach(function(stop) {
+							var marker = L.marker([stop.lat, stop.lon]);
+							markerCoords.push(marker)
+						});
+					}
+				});
+				console.log('markerCoords', this)
+				if (markerLayer) {
+					map.removeLayer(markerLayer);	
+				}
+				var markerLayer = L.layerGroup(markerCoords)
+				markerLayer.addTo(map);
+				// _addMarkers(markerCoords, 'red');
+
+
+			}).catch(function(err) {
+				$log.error('sendRequest error: ', err);
+			});
+		};
+
+		// execute promises
+		getAddress.then(function(result) {
+			console.log('getAddress result', result);
+			getCoordsFromAddress(result.name).then(function(result) {
+				console.log('getAddress prommise:', result)
+				sendRequest(result);
+			})
+		}).catch(function(err) {
+			$log.error('planTrip error:', err); // #################################### TODO: add proper error handling for form
 		});
 	};
 
-	vm.extractTransitRoute = function(str) {
-		routeLineLayer.clearLayers();
-		// $scope.$apply();
+	vm.showDefaultMap = function() {
+		// setUpRouteVisuals.then(function(routeLineLayer) {
+		// 	map.addLayer(routeLineLayer);
+		// 	// routeLineLayer.addTo(map);
+		// }).catch(function(err) {
+		// 	$log.error('setUpRouteVisuals error', err)
+		// });
+		// // map.addLayer(routeLineLayer);
 
-		// add polyline to map
-		locationService.decodePolyline(str).then(function(coordinates) {
-			var latLngs = [];
-			coordinates.forEach(function(pair) {				
-				latLngs.push(L.latLng(pair[0], pair[1]));				
-			});
-			var polyline = L.polyline(latLngs, { color: 'red' }).addTo(map);
-			console.log('routeLineLayer', routeLineLayer)
-			// map.removeLayer(routeLineLayer);
-			
-			map.fitBounds(polyline.getBounds());
-		});
-	} 
+		_getRoutes(vm.currentPosition);
+		console.log('hello')
+	}
 
 	function _setBboxLine(position) {
 			// create bounding boxs area to illustrate routesByBbox search area
