@@ -22,7 +22,7 @@ var sources = [
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(staticCacheName).then(function(cache) {
-			return cache.addAll(sources[1]);
+			return cache.addAll(sources[0]);
 		})
 	);
 });

@@ -62,7 +62,7 @@ angular.module('transitApp')
 			return Promise.resolve();
 		}
 		console.log('initiating database');
-		return idb.open('gtfsData', 9, function(upgradeDb) {
+		return idb.open('gtfsData', 3, function(upgradeDb) {
 			switch (upgradeDb.oldVersion) {
 				case 0: 
 					var stopsStore = upgradeDb.createObjectStore('stops', {
@@ -425,7 +425,7 @@ angular.module('transitApp')
 						var colorIndex = getRandomInt(0, staticColors.length);
 						var color = staticColors[colorIndex];
 						staticColors.splice(colorIndex, 1);
-						console.log('color', colorIndex, color);
+						// console.log('color', colorIndex, color);
 						if (angular.isUndefined(color)) {
 							color = randomColor({
 								luminosity: 'bright'
@@ -794,45 +794,7 @@ angular.module('transitApp')
 			_addMarkers(selectedRoute.collectedStops, selectedRoute.color);
 			_storeTrips(selectedRoute);
 			return selectedRoute;
-		})
-		// .then(function(selectedRoute) {	//**************** stop times
-		// 	selectedRoute.collectedStops.forEach(function(stop) {
-		// 		stop.stopTimes = [];	
-		// 	});
-			
-		// 	_dbPromise.then(function(db) {
-		// 		if (!db) return;
-		// 		var tx = db.transaction('stop_times');
-		// 		var store = tx.objectStore('stop_times');
-		// 		var timeIndex = store.index('by-trip-id');
-
-		// 		return timeIndex.openCursor();
-		// 	}).then(function(cursor) {
-		// 		if (!cursor) return;
-		// 		return cursor.advance(1);
-		// 	}).then(function storeTime(cursor) {
-		// 		if (!cursor) return;
-		// 		selectedRoute.collectedStops.forEach(function(stop) {
-		// 			// go through idb stop_times and pull ech entry 
-		// 			// that has a matching stop_id
-					
-		// 			if (stop.stop_id === cursor.value.stop_id) {
-		// 				console.log('stop time: ', cursor.value)
-		// 				console.log('stop.stop_id:', stop.stop_id)
-		// 				console.log('cursor.value.stop_id:', cursor.value.stop_id)
-		// 				var stopTime = cursor.value;
-		// 				stop.stopTimes.push(stopTime);
-		// 				$scope.$apply();
-		// 			}
-		// 		})
-		// 		return cursor.continue().then(storeTime);
-		// 	}).then(function() {
-		// 		console.log('done time cursoring:', selectedRoute)
-		// 	})
-
-
-		// })
-		.catch(function(err) {
+		}).catch(function(err) {
 			console.error('Could not collect stops data: ', err);
 		});
 		console.log('selectedRoute: ', selectedRoute);
@@ -846,7 +808,5 @@ angular.module('transitApp')
 	vm.testFunction = function() {
 		console.log('hello world!');
 	};
-
-	// console.log('hello');
 
 }]);
